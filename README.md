@@ -1,1 +1,0 @@
-# 2025_Winter_Talent_Show
