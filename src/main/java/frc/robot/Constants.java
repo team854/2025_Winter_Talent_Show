@@ -19,6 +19,13 @@ public class Constants {
         public static final int GYRO_ID = 1;
     }
 
+    public final class NotePhysicsConstants {
+        public static double DRAG_CONSTANT = 0.1;
+        public static double CROSS_SECTION_AREA = 0.01;
+        public static double MASS = 0.145;
+        public static double FLUID_DENSITY = 1.2574;
+    }
+
     public final class ControlConstants {
         public static double FOWARD_SPEED = 0.25;
         public static double RIGHT_SPEED = 0.25;
