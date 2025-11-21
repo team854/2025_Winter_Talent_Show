@@ -47,8 +47,8 @@ public class ArmSubsystem extends SubsystemBase {
     @Override
     public void periodic() 
     {
-        double stationaryAdditionAmount = Math.cos(armAngle.in(Degree)) * Constants.ArmContants.ARM_STATIONARY_CONSTANT;
-        double pidOutput = pid.calculate(armEncoderObject.getPosition(), armAngle.in(Radian))
+        double stationaryAdditionAmount = Math.cos(armEncoderObject.getPosition() * 2 * Math.PI) * Constants.ArmContants.ARM_STATIONARY_CONSTANT;
+        double pidOutput = pid.calculate(armEncoderObject.getPosition(), armAngle.in(Radian));
         armMotorObject.set(pidOutput + stationaryAdditionAmount);
     }
 
