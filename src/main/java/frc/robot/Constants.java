@@ -12,16 +12,9 @@ public class Constants {
         public static final int RIGHT_MOTOR_1_ID = 20;
         public static final int RIGHT_MOTOR_2_ID = 21;
         public static final boolean RIGHT_MOTORS_REVERSED = true;
-         public static final Distance WHEEL_BASE_WIDTH = Meters.of(1);
+        public static final Distance WHEEL_BASE_WIDTH = Meters.of(1);
 
         public static final int GYRO_ID = 1;
-    }
-
-    public final class NotePhysicsConstants {
-        public static double DRAG_CONSTANT = 0.1;
-        public static double CROSS_SECTION_AREA = 0.01;
-        public static double MASS = 0.145;
-        public static double FLUID_DENSITY = 1.2574;
     }
 
     public final class NotePhysicsConstants {
@@ -43,6 +36,7 @@ public class Constants {
         public static final int ARM_PID_D = 0;
         public static final int ARM_ZERO_OFFSET = 0;
         public static final float ARM_STATIONARY_CONSTANT = 1;
+    }
 
     public static final class ShooterConstants {
         public static final double KP = 0.0;
