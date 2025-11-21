@@ -26,21 +26,29 @@ public class ArmSubsystem extends SubsystemBase {
     private final AbsoluteEncoder armEncoderObject = armMotorObject.getAbsoluteEncoder();
     private final SparkMaxConfig armConfig = new SparkMaxConfig();
 
-    private final PIDController pid = new PIDController(3, 0, 0);
+    private final PIDController pid = new PIDController(Constants.ArmContants.ARM_PID_P,
+                                                        Constants.ArmContants.ARM_PID_I, 
+                                                        Constants.ArmContants.ARM_PID_D);
 
     public ArmSubsystem()
     {
-        armAngle = Angle.ofBaseUnits(0, Degree);
+        armAngle = Degree.of(0);
 
         armConfig.absoluteEncoder.positionConversionFactor(360);
-
+        armConfig.absoluteEncoder.zeroOffset(Constants.ArmContants.ARM_ZERO_OFFSET);
         armMotorObject.configure(armConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    
+        pid.enableContinuousInput(0, 360);
+
+        
     }
 
     @Override
     public void periodic() 
     {
-        armMotorObject.set(pid.calculate(armEncoderObject.getPosition(), armAngle.in(Degree)));
+        armMotorObject.set(
+        pid.calculate(armEncoderObject.getPosition(),
+                      armAngle.in(Degree)) + Math.cos(armAngle.in(Degree)) * Constants.ArmContants.ARM_STATIONARY_CONSTANT);
     }
 
     public void setTargetArmAngle(Angle targetAngle)
