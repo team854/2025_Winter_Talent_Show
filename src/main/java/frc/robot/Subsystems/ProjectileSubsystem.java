@@ -28,6 +28,7 @@ public class ProjectileSubsystem extends SubsystemBase {
     }
 
     public record TargetSolution(
+        Boolean solutionFound,
         Angle launchPitch,
         Angle launchYaw
     ) {};
@@ -219,6 +220,15 @@ public class ProjectileSubsystem extends SubsystemBase {
             launchError1 = calculateHeightError(launchSpeed, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
         }
 
-        return new TargetSolution(Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1));
+        Boolean solutionFound = true;
+        if (Math.abs(launchAngleYaw1) > (Math.PI * 2)) {
+            solutionFound = false;
+        } else if (launchAnglePitch1 > Constants.ArmContants.ARM_UPPER_LIMIT.in(Radians)) {
+            solutionFound = false;
+        } else if (launchAnglePitch1 < Constants.ArmContants.ARM_LOWER_LIMIT.in(Radians)) {
+            solutionFound = false;
+        }
+
+        return new TargetSolution(solutionFound, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1));
     }
 }

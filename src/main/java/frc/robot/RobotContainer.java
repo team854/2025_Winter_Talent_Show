@@ -7,12 +7,18 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Commands.ActivateShooterCommand;
+import frc.robot.Commands.DefaultArmCommand;
 import frc.robot.Commands.DefaultDriveCommand;
+import frc.robot.Subsystems.ArmSubsystem;
 import frc.robot.Subsystems.DriveSubsystem;
+import frc.robot.Subsystems.ShooterSubsystem;
 
 public class RobotContainer {
   public static final CommandXboxController xboxController = new CommandXboxController(0);
 	public static final DriveSubsystem driveSubsystem = new DriveSubsystem();
+  public static final ArmSubsystem armSubsystem = new ArmSubsystem();
+  public static final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 
   public RobotContainer() {
     configureBindings();
@@ -20,6 +26,9 @@ public class RobotContainer {
 
   private void configureBindings() {
     driveSubsystem.setDefaultCommand(new DefaultDriveCommand());
+    armSubsystem.setDefaultCommand(new DefaultArmCommand());
+
+    xboxController.a().whileTrue(new ActivateShooterCommand());
   }
 
   public Command getAutonomousCommand() {

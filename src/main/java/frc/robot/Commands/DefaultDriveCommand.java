@@ -17,7 +17,7 @@ public class DefaultDriveCommand extends Command {
     @Override
     public void execute() {
         double foward = -RobotContainer.xboxController.getLeftY() * Constants.ControlConstants.FORWARD_SPEED;
-        double turn = -RobotContainer.xboxController.getRightX() * Constants.ControlConstants.RIGHT_SPEED;
+        double turn = -RobotContainer.xboxController.getLeftX() * Constants.ControlConstants.RIGHT_SPEED;
 
         double leftMotor = foward - turn;
         double rightMotor = foward + turn;
