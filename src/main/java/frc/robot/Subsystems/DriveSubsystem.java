@@ -22,8 +22,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final WPI_TalonSRX rightMotor1 = new WPI_TalonSRX(Constants.DriveConstants.RIGHT_MOTOR_1_ID);
 
-    private final Pigeon2 gyro = new Pigeon2(1, "rio");
-
     public DriveSubsystem() {
         // Inverts one sides (Depends on how the gearbox is set up)
         leftMotor1.setInverted(Constants.DriveConstants.LEFT_MOTORS_REVERSED);
@@ -33,10 +31,6 @@ public class DriveSubsystem extends SubsystemBase {
         // Makes it brake if it is not moving
         leftMotor1.setNeutralMode(NeutralMode.Brake);
         rightMotor1.setNeutralMode(NeutralMode.Brake);
-    }
-
-    public Pigeon2 getGyro() {
-        return gyro;
     }
 
     public void setDriveMotors(double leftMotor, double rightMotor) {

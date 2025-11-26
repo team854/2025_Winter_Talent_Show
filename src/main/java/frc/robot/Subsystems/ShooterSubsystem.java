@@ -18,6 +18,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Main;
@@ -64,10 +65,16 @@ public class ShooterSubsystem extends SubsystemBase {
      public void setSpeed(AngularVelocity speed) {
         shooterController1.setReference(speed.in(RPM), ControlType.kMAXMotionVelocityControl);
         shooterController2.setReference(speed.in(RPM), ControlType.kMAXMotionVelocityControl);
+
+        SmartDashboard.putNumber("Shooter/Target RPM", speed.in(RPM));
         
     }
     
-  
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Shooter/Motor 1 RPM", shooterMotor1.getEncoder().getVelocity());
+        SmartDashboard.putNumber("Shooter/Motor 2 RPM", shooterMotor2.getEncoder().getVelocity());
+    }
 
 
 }

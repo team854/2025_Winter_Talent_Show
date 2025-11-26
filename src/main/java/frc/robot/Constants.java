@@ -56,4 +56,8 @@ public class Constants {
         public static final AngularAcceleration  SHOOTER_MAX_ANGULAR_ACCELERATION = RotationsPerSecondPerSecond.of(5); 
         public static final AngularVelocity SHOOTER_ALLOWED_ERROR = RPM.of(1);
     }
+
+    public static final class LimelightConstants {
+        public static final String LIMELIGHT_NAME = "limelight";
+    }
 }

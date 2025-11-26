@@ -15,6 +15,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -49,9 +50,15 @@ public class ArmSubsystem extends SubsystemBase {
     @Override
     public void periodic() 
     {
-        double stationaryAdditionAmount = Math.cos((armAbsoluteEncoder.getPosition() / 180.0) * Math.PI) * Constants.ArmContants.ARM_STATIONARY_CONSTANT;
+        SmartDashboard.putNumber("Arm/Absolute Angle", getCurrentArmAngle().in(Degree));
+        SmartDashboard.putNumber("Arm/Target Angle", getTargetArmAngle().in(Degree));
+
+        double stationaryAdditionAmount = Math.cos(getCurrentArmAngle().in(Radian)) * Constants.ArmContants.ARM_STATIONARY_CONSTANT;
         double pidOutput = pid.calculate(armAbsoluteEncoder.getPosition(), armAngle.in(Degree));
-        armMotorObject.set(pidOutput + stationaryAdditionAmount);
+        double finalMotorPower = pidOutput + stationaryAdditionAmount;
+        armMotorObject.set(finalMotorPower);
+
+        SmartDashboard.putNumber("Arm/Motor Percent", finalMotorPower * 100.0);
     }
 
     public void setTargetArmAngle(Angle targetAngle)
