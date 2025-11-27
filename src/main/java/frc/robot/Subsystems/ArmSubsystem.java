@@ -24,22 +24,22 @@ public class ArmSubsystem extends SubsystemBase {
     
     private Angle armAngle;
 
-    private final SparkMax armMotorObject = new SparkMax(Constants.ArmContants.ARM_MOTOR_ID, MotorType.kBrushless);
+    private final SparkMax armMotorObject = new SparkMax(Constants.ArmConstants.ARM_MOTOR_ID, MotorType.kBrushless);
     private final AbsoluteEncoder armAbsoluteEncoder = armMotorObject.getAbsoluteEncoder();
     private final SparkMaxConfig armConfig = new SparkMaxConfig();
 
-    private final PIDController pid = new PIDController(Constants.ArmContants.ARM_PID_P,
-                                                        Constants.ArmContants.ARM_PID_I, 
-                                                        Constants.ArmContants.ARM_PID_D);
+    private final PIDController pid = new PIDController(Constants.ArmConstants.ARM_PID_P,
+                                                        Constants.ArmConstants.ARM_PID_I, 
+                                                        Constants.ArmConstants.ARM_PID_D);
 
     public ArmSubsystem()
     {
         armAngle = Degree.of(0);
         
-        armConfig.inverted(Constants.ArmContants.ARM_MOTOR_INVERTED);
+        armConfig.inverted(Constants.ArmConstants.ARM_MOTOR_INVERTED);
         armConfig.absoluteEncoder.positionConversionFactor(360);
-        armConfig.absoluteEncoder.zeroOffset(Constants.ArmContants.ARM_ZERO_OFFSET);
-        armConfig.absoluteEncoder.inverted(Constants.ArmContants.ARM_ENCODER_INVERTED);
+        armConfig.absoluteEncoder.zeroOffset(Constants.ArmConstants.ARM_ZERO_OFFSET);
+        armConfig.absoluteEncoder.inverted(Constants.ArmConstants.ARM_ENCODER_INVERTED);
         armMotorObject.configure(armConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     
         pid.enableContinuousInput(0, 360);
@@ -53,7 +53,7 @@ public class ArmSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Arm/Absolute Angle", getCurrentArmAngle().in(Degree));
         SmartDashboard.putNumber("Arm/Target Angle", getTargetArmAngle().in(Degree));
 
-        double stationaryAdditionAmount = Math.cos(getCurrentArmAngle().in(Radian)) * Constants.ArmContants.ARM_STATIONARY_CONSTANT;
+        double stationaryAdditionAmount = Math.cos(getCurrentArmAngle().in(Radian)) * Constants.ArmConstants.ARM_STATIONARY_CONSTANT;
         double pidOutput = pid.calculate(armAbsoluteEncoder.getPosition(), armAngle.in(Degree));
         double finalMotorPower = pidOutput + stationaryAdditionAmount;
         armMotorObject.set(finalMotorPower);
@@ -64,8 +64,8 @@ public class ArmSubsystem extends SubsystemBase {
     public void setTargetArmAngle(Angle targetAngle)
     {
         double rawTargetAngle = targetAngle.in(Degree);
-        rawTargetAngle = Math.max(rawTargetAngle, Constants.ArmContants.ARM_LOWER_LIMIT.in(Degree));
-        rawTargetAngle = Math.min(rawTargetAngle, Constants.ArmContants.ARM_UPPER_LIMIT.in(Degree));
+        rawTargetAngle = Math.max(rawTargetAngle, Constants.ArmConstants.ARM_LOWER_LIMIT.in(Degree));
+        rawTargetAngle = Math.min(rawTargetAngle, Constants.ArmConstants.ARM_UPPER_LIMIT.in(Degree));
 
         armAngle = Degree.of(rawTargetAngle);
     }

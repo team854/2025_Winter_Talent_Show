@@ -1,9 +1,11 @@
 package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -32,7 +34,7 @@ public class Constants {
         public static final double ARM_SPEED = 1;
     }
 
-    public final class ArmContants {
+    public final class ArmConstants {
         public static final int ARM_MOTOR_ID = 4;
         public static final double ARM_PID_P = 0.01;//3;
         public static final double ARM_PID_I = 0;
@@ -43,6 +45,12 @@ public class Constants {
         public static final double ARM_STATIONARY_CONSTANT = 0.047;
         public static final Angle ARM_UPPER_LIMIT = Degrees.of(90);
         public static final Angle ARM_LOWER_LIMIT = Degrees.of(-10);
+        public static final Translation3d ARM_PIVOT_OFFSET = new Translation3d(
+            0,
+            0,
+            0
+        );
+        public static final Distance ARM_PIVOT_NOTE_OFFSET = Meter.of(0.1);
     }
 
     public static final class ShooterConstants {
