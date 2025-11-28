@@ -27,12 +27,35 @@ public class ProjectileSubsystem extends SubsystemBase {
 
     }
 
+    /**
+     * TargetSolution
+     * 
+     * @param errorCode Stores if the solver has encountered an error. Anything over 0 is an error:
+     *  <ul>
+     *       <li>1 = Ideal pitch cannot reach</li>
+     *       <li>2 = Yaw exceeds 360 degrees (2pi)</li>
+     *       <li>3 = Pitch exceeds arm upper limit</li>
+     *       <li>4 = Pitch exceeds arm lower limit</li>
+     *       <li>5 = Height error exceeds 0.1 meters</li>
+     *       <li>6 = Yaw error exceeds 0.1 radians</li>
+     *  </ul>
+     * @param launchPitch Stores the launch pitch of the projectile as an {@link Angle}
+     * @param launchYaw Stores the launch yaw of the projectile as an {@link Angle}
+     */
     public record TargetSolution(
-        boolean solutionFound,
+        int errorCode,
         Angle launchPitch,
         Angle launchYaw
     ) {};
 
+    /**
+     * Calculates the launch pitch needed to reach a target not accounting for drag.
+     * 
+     * @param launchSpeed The launch speed of the projectile as a {@link LinearVelocity}
+     * @param horizontalDistance The targets horizontal distance from the robot as a {@link Distance}
+     * @param heightOffset The height offset of the target from the rrobot as a {@link Distance}
+     * @return The {@link Angle} that the projectile should be launched. Null if the projectile cannot reach the target
+     */
     private Angle calculateLaunchPitchIdeal(LinearVelocity launchSpeed, Distance horizontalDistance, Distance heightOffset) {
         double launchSpeedMPS = launchSpeed.in(MetersPerSecond);
 
@@ -54,6 +77,29 @@ public class ProjectileSubsystem extends SubsystemBase {
         return Radians.of(Math.atan(numerator / denominator));
     }
 
+    /**
+     * Calculates the derivatives of the system state for runge kutta 4.
+     * 
+     * @param systemState A double array of length 6 that stoes the state of the system in the order:
+     *  <ul>
+     *       <li>X position</li>
+     *       <li>Y position</li>
+     *       <li>Z position</li>
+     *       <li>X velocity</li>
+     *       <li>Y velocity</li>
+     *       <li>Z velocity</li>
+     *  </ul>
+     * @param dragConstant The drag constant of the projectile
+     * @return A double list of length 6 that stores the derivatives of the system state in the order:
+     *  <ul>
+     *       <li>X velocity</li>
+     *       <li>Y velocity</li>
+     *       <li>Z velocity</li>
+     *       <li>X acceleration</li>
+     *       <li>Y acceleration</li>
+     *       <li>Z acceleration</li>
+     *  </ul>
+     */
     private double[] rungeKuttaDerivative(double[] systemState, double dragConstant) {
         double totalVelocity = Math.sqrt(Math.pow(systemState[3], 2) + Math.pow(systemState[4], 2) + Math.pow(systemState[5], 2));
 
@@ -74,6 +120,15 @@ public class ProjectileSubsystem extends SubsystemBase {
         return new double[]{systemState[3], systemState[4], systemState[5], xAccel, yAccel, zAccel};
     }
 
+    /**
+     * Applies a derivative of a system state to the system state using a factor.
+     * 
+     * @param systemState1 A double array of length 6 that stores the inital system state
+     * @param systemState2 A double array of length 6 that stores the derivative of the inital system state
+     * @param multiplier The factor to use when applying the derivative
+     * @param deltaTime The time between steps of the simulation
+     * @return The intermediate system state
+     */
     private double[] rungeKuttaIntermediate(double[] systemState1, double[] systemState2, double multiplier, Time deltaTime) {
         double[] finalSystemState = new double[6];
         
@@ -84,6 +139,30 @@ public class ProjectileSubsystem extends SubsystemBase {
         return finalSystemState;
     }
 
+    /**
+     * Performs an integration step for runge kutta 4.
+     * 
+     * @param systemState A double array of length 6 that stores the state of the system in the order:
+     *  <ul>
+     *       <li>X position</li>
+     *       <li>Y position</li>
+     *       <li>Z position</li>
+     *       <li>X velocity</li>
+     *       <li>Y velocity</li>
+     *       <li>Z velocity</li>
+     *  </ul>
+     * @param dragConstant The drag constant of the projectile
+     * @param deltaTime The time between steps of the simulation
+     * @return A double array of length 6 that stores the state of the system after this step in the order:
+     *  <ul>
+     *       <li>X position</li>
+     *       <li>Y position</li>
+     *       <li>Z position</li>
+     *       <li>X velocity</li>
+     *       <li>Y velocity</li>
+     *       <li>Z velocity</li>
+     *  </ul>
+     */
     private double[] rungeKuttaStep(double[] systemState, double dragConstant, Time deltaTime) {
         double[] k1SystemState = rungeKuttaDerivative(systemState, dragConstant);
         double[] k2SystemState = rungeKuttaDerivative(rungeKuttaIntermediate(systemState, k1SystemState, 0.5, deltaTime), dragConstant);
@@ -101,6 +180,17 @@ public class ProjectileSubsystem extends SubsystemBase {
         return finalSystemState;
     }
 
+    /**
+     * Simuulates the launch of a projectile using runge kutta 4.
+     * 
+     * @param launchSpeed The launch velocity of the projectile as a {@link LinearVelocity}
+     * @param launchPitch The launch pitch of the projectiile as a {@link Angle}
+     * @param launchYaw The launch yaw of the projectile as a {@link Angle}
+     * @param robotVelocity The velocity of the robot as a {@link Translation3d} in Meters/Second
+     * @param targetPosition The target posititon in field relative cordinates centered at the robot in {@link Translation3d} in Meter
+     * @param tps The ticks per second of the simulation
+     * @return A {@link Translation3d} array of the last two positions of the projectile
+     */
     public Translation3d[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, Translation2d robotVelocity, Translation3d targetPosition, int tps) {
 
         Translation3d position = Constants.ArmConstants.ARM_PIVOT_OFFSET;
@@ -166,6 +256,13 @@ public class ProjectileSubsystem extends SubsystemBase {
         return path;
     }
 
+    /**
+     * Interpolates the position of the projectile between two points
+     * 
+     * @param path A double array that contains the last two positions of the projectile as a {@link Translation3d} in Meters
+     * @param horizontalDistance The horizontal distance of the target as a {@link Distance}
+     * @return The interpolated positon of the projectile as a {@link Translation3d} in Meters
+     */
     private Translation3d interpolatePosition(Translation3d[] path, Distance horizontalDistance) {
         double horizontalDistance1 = Math.sqrt(Math.pow(path[0].getX(), 2) + Math.pow(path[0].getY(), 2));
         double horizontalDistance2 = Math.sqrt(Math.pow(path[1].getX(), 2) + Math.pow(path[1].getY(), 2));
@@ -183,7 +280,24 @@ public class ProjectileSubsystem extends SubsystemBase {
         );
     }
 
-    private double[] calculateHeightError(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, Distance horizontalDistance, int tps) {
+    /**
+     * Calculates the error of the projectiles landing point
+     * 
+     * @param launchSpeed The launch speed of the projectile as a {@link LinearVelocity}
+     * @param launchPitch The launch pitch of the projectile as a {@link Angle}
+     * @param launchYaw The launch yaw of the projectile as a {@link Angle}
+     * @param robotVelocity The field relative velocity of the robot as a {@link LinearVelocity} in Meters/Second
+     * @param targetPosition The field relative position of the target centered at the robot
+     * @param targetDirectAngle The direct yaw {@link Angle} towards the target
+     * @param horizontalDistance The {@link Distance} from the robot to the target 
+     * @param tps The ticks per second of the simulation
+     * @return The error in the simulation in the order:
+     *  <ul>
+     *       <li>Height error</li>
+     *       <li>Yaw error</li>
+     *  </ul>
+     */
+    private double[] calculateLaunchError(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, Translation2d robotVelocity, Translation3d targetPosition, Angle targetDirectAngle, Distance horizontalDistance, int tps) {
         Translation3d[] path = simulateLaunch(
             launchSpeed,
             launchPitch,
@@ -205,13 +319,12 @@ public class ProjectileSubsystem extends SubsystemBase {
 
     /**
      * 
-     * @param launchSpeed The launch speed of the projectile
-     * @param robotVelocity The field relative velocity of the robot
-     * @param targetPosition The robt relative position of the target (Rotation is field relative)
-     * @param maxSteps The max ammount of optimization steps in can take
+     * @param launchSpeed The launch speed of the projectile as a {@link LinearVelocity}
+     * @param robotVelocity The field relative velocity of the robot as a {@link Translation2d} in Meters/Second
+     * @param targetPosition The robt relative position of the target (Rotation is field relative) as a {@link Translation3d} in Meters
+     * @param maxSteps The max ammount of optimization steps (It can exit early if the error gets below a threshold)
      * @param tps The ticks per second that physics will be calculated at
      * @return The target solution
-     * 
      */
     public TargetSolution calculateLaunchAngleSimulation(LinearVelocity launchSpeed, Translation2d robotVelocity, Translation3d targetPosition, int maxSteps, int tps) {
         Distance horizontalDistance = Meter.of(Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2)));
@@ -221,7 +334,7 @@ public class ProjectileSubsystem extends SubsystemBase {
         Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(launchSpeed, horizontalDistance, Meter.of(targetPosition.getZ()));
 
         if (launchAnglePitch1Temp == null) {
-            return new TargetSolution(false, Radians.of(0.0), Radians.of(0.0));
+            return new TargetSolution(1, Radians.of(0.0), Radians.of(0.0));
         }
         double launchAnglePitch1 = launchAnglePitch1Temp.in(Radians);
         double launchAnglePitch2 = launchAnglePitch1 + 0.1;
@@ -229,8 +342,8 @@ public class ProjectileSubsystem extends SubsystemBase {
         double launchAngleYaw2 = targetDirectAngle + 0.1;
 
         // Height Error, Yaw Error
-        double[] launchError1 = calculateHeightError(launchSpeed, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
-        double[] launchError2 = calculateHeightError(launchSpeed, Radians.of(launchAnglePitch2), Radians.of(launchAngleYaw2), robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+        double[] launchError1 = calculateLaunchError(launchSpeed, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+        double[] launchError2 = calculateLaunchError(launchSpeed, Radians.of(launchAnglePitch2), Radians.of(launchAngleYaw2), robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
 
         for (int steps = 0; steps < maxSteps; steps++) {
             if (Math.abs(launchError1[0]) < 1e-7 && Math.abs(launchError1[1]) < 1e-6) {
@@ -255,20 +368,20 @@ public class ProjectileSubsystem extends SubsystemBase {
             launchAngleYaw1 -= (launchError1[1] * weightYaw);
 
             // Height Error, Yaw Error
-            launchError1 = calculateHeightError(launchSpeed, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
+            launchError1 = calculateLaunchError(launchSpeed, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
         }
 
-        boolean solutionFound = true;
+        int solutionFound = 0;
         if (Math.abs(launchAngleYaw1) > (Math.PI * 2)) {
-            solutionFound = false;
+            solutionFound = 2;
         } else if (launchAnglePitch1 > Constants.ArmConstants.ARM_UPPER_LIMIT.in(Radians)) {
-            solutionFound = false;
+            solutionFound = 3;
         } else if (launchAnglePitch1 < Constants.ArmConstants.ARM_LOWER_LIMIT.in(Radians)) {
-            solutionFound = false;
+            solutionFound = 4;
         } else if (Math.abs(launchError1[0]) > 0.1) {
-            solutionFound = false;
+            solutionFound = 5;
         } else if (Math.abs(launchError1[1]) > 0.1) {
-            solutionFound = false;
+            solutionFound = 6;
         }
 
         return new TargetSolution(solutionFound, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1));

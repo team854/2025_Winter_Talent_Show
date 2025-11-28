@@ -69,6 +69,7 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Shooter/Target RPM", speed.in(RPM));
         
     }
+
     
     @Override
     public void periodic() {
