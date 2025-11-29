@@ -68,4 +68,8 @@ public class Constants {
     public static final class LimelightConstants {
         public static final String LIMELIGHT_NAME = "limelight";
     }
+
+    public final class Projectile {
+        public static final double GRAVITY = 9.80665;
+    }
 }
