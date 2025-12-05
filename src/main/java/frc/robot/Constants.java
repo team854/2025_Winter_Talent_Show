@@ -23,4 +23,18 @@ public class Constants {
         public static double FOWARD_SPEED = 0.25;
         public static double RIGHT_SPEED = 0.25;
     }
+
+    public final class ArmConstants {
+        public static final double GRAVITY_COMPENSATION = 0;
+        public static final int ARM_NEO_MOTOR_ID = 1;
+        public static final double kP_CONSTANT = 0;
+        public static final double kI_CONSTANT = 0;
+        public static final double kD_CONSTANT = 0;
+    }
+    public final class IndexerConstants {
+        public static final int INDEX_MOTOR_ID = 2;
+        public static final boolean INDEX_MOTOR_INVERSED = true;
+       
+        public static final int INDEX_PROXIMITY_PORT = 1;
+    }
 }
