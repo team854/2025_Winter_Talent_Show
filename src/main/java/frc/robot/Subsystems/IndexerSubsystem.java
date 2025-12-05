@@ -1,3 +1,5 @@
+package frc.robot.Subsystems;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -8,30 +10,28 @@ import frc.robot.Constants;
 
 public class IndexerSubsystem extends SubsystemBase{
       
-    private final WPI_TalonSRX indexmotor = new WPI_TalonSRX(Constants.IndexerConstants.INDEX_MOTOR_ID);
-    private double currSpeed = 0;
-    private DigitalInput m_proximitySensor = new DigitalInput(Constants.IndexerConstants.INDEX_PROXIMITY_PORT);
-    public void robotInit() {
-        DigitalInput m_proximitySensor = new DigitalInput(Constants.IndexerConstants.PROXIMITY_CHANNEL); 
-    }
+    private final WPI_TalonSRX indexMotor = new WPI_TalonSRX(Constants.IndexerConstants.INDEX_MOTOR_ID);
+    private double currentSpeed = 0;
+    private final DigitalInput m_proximitySensor = new DigitalInput(Constants.IndexerConstants.INDEX_PROXIMITY_PORT);
     public boolean getProximity(){
         return m_proximitySensor.get();
     }
 
     public IndexerSubsystem(){
-        indexmotor.setInverted(Constants.IndexerConstants.INDEX_MOTOR_INVERSED);
-        indexmotor.setNeutralMode(NeutralMode.Coast);
+        indexMotor.setInverted(Constants.IndexerConstants.INDEX_MOTOR_INVERSED);
+        indexMotor.setNeutralMode(NeutralMode.Coast);
     }
     
 
 
     public void setSpeed(double speed) {
-        currSpeed = speed;
-        indexmotor.set(currSpeed);
+        currentSpeed = speed;
+        indexMotor.set(currentSpeed);
     }
 
     public double getSpeed(){
-        return currSpeed;
+        return currentSpeed;
     }
+
 
 }
