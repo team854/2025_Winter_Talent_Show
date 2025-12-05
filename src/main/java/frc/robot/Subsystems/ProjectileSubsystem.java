@@ -1,10 +1,13 @@
 package frc.robot.Subsystems;
 
+import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -20,30 +23,45 @@ import frc.robot.Constants;
 public class ProjectileSubsystem extends SubsystemBase {
     private final double dragCoefficient = Constants.NotePhysicsConstants.DRAG_CONSTANT;
     private final double crossSectionArea = Constants.NotePhysicsConstants.CROSS_SECTION_AREA;
-    private final double mass = Constants.NotePhysicsConstants.MASS;
+    private final double mass = Constants.NotePhysicsConstants.MASS.in(Kilogram);
     private final double fluidDensity = Constants.NotePhysicsConstants.FLUID_DENSITY;
+    private final double gravity = Constants.NotePhysicsConstants.GRAVITY.in(MetersPerSecondPerSecond);
 
     public ProjectileSubsystem() {
 
     }
 
     /**
+     * TargetErrorCode
+     * <ul>
+     *       <li>NONE = No error</li>
+     *       <li>IDEAL_PITCH = Ideal pitch cannot reach</li>
+     *       <li>EXCESSIVE_YAW = Yaw exceeds 360 degrees (2pi)</li>
+     *       <li>PITCH_UPPER_LIMIT = Pitch exceeds arm upper limit</li>
+     *       <li>PITCH_LOWER_LIMIT = Pitch exceeds arm lower limit</li>
+     *       <li>HEIGHT_ERROR_HIGH = Height error exceeds 0.1 meters</li>
+     *       <li>YAW_ERROR_HIGH = Yaw error exceeds 0.1 radians</li>
+     *  </ul>
+     */
+    public enum TargetErrorCode {
+        NONE,
+        IDEAL_PITCH,
+        EXCESSIVE_YAW,
+        PITCH_UPPER_LIMIT,
+        PITCH_LOWER_LIMIT,
+        HEIGHT_ERROR_HIGH,
+        YAW_ERROR_HIGH
+    }
+
+    /**
      * TargetSolution
      * 
-     * @param errorCode Stores if the solver has encountered an error. Anything over 0 is an error:
-     *  <ul>
-     *       <li>1 = Ideal pitch cannot reach</li>
-     *       <li>2 = Yaw exceeds 360 degrees (2pi)</li>
-     *       <li>3 = Pitch exceeds arm upper limit</li>
-     *       <li>4 = Pitch exceeds arm lower limit</li>
-     *       <li>5 = Height error exceeds 0.1 meters</li>
-     *       <li>6 = Yaw error exceeds 0.1 radians</li>
-     *  </ul>
+     * @param errorCode Stores if the solver has encountered an error
      * @param launchPitch Stores the launch pitch of the projectile as an {@link Angle}
      * @param launchYaw Stores the launch yaw of the projectile as an {@link Angle}
      */
     public record TargetSolution(
-        int errorCode,
+        TargetErrorCode errorCode,
         Angle launchPitch,
         Angle launchYaw
     ) {};
@@ -63,7 +81,7 @@ public class ProjectileSubsystem extends SubsystemBase {
             return null; 
         }
 
-        double discriminant = Math.pow(launchSpeedMPS, 4) - (Math.pow(9.8, 2) * Math.pow(horizontalDistance.in(Meter), 2)) + (2 * 9.8 * Math.pow(launchSpeedMPS, 2) * -heightOffset.in(Meter));
+        double discriminant = Math.pow(launchSpeedMPS, 4) - (Math.pow(gravity, 2) * Math.pow(horizontalDistance.in(Meter), 2)) + (2 * gravity * Math.pow(launchSpeedMPS, 2) * -heightOffset.in(Meter));
 
         if (discriminant < 0) {
             return null;
@@ -72,7 +90,7 @@ public class ProjectileSubsystem extends SubsystemBase {
         double square_root = Math.sqrt(discriminant);
 
         double numerator = (Math.pow(launchSpeedMPS, 2)) - square_root;
-        double denominator = 9.8 * horizontalDistance.in(Meter);
+        double denominator = gravity * horizontalDistance.in(Meter);
 
         return Radians.of(Math.atan(numerator / denominator));
     }
@@ -115,7 +133,7 @@ public class ProjectileSubsystem extends SubsystemBase {
 
         double xAccel = (xDrag / mass);
         double yAccel = (yDrag / mass);
-        double zAccel = (zDrag / mass) - 9.8;
+        double zAccel = (zDrag / mass) - gravity;
 
         return new double[]{systemState[3], systemState[4], systemState[5], xAccel, yAccel, zAccel};
     }
@@ -219,7 +237,7 @@ public class ProjectileSubsystem extends SubsystemBase {
 
         double horizontalDistance = Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2));
 
-        Translation3d[] path = new Translation3d[]{new Translation3d(), new Translation3d()};
+        Translation3d[] path = new Translation3d[]{position, position};
 
         for (int step = 0; step < 5 * tps; step++) {
             double[] systemState = rungeKuttaStep(
@@ -313,7 +331,7 @@ public class ProjectileSubsystem extends SubsystemBase {
 
         return new double[]{
             crossOverPoint.getZ() - targetPosition.getZ(),
-            landing_yaw - targetDirectAngle.in(Radians)
+            MathUtil.angleModulus(landing_yaw - targetDirectAngle.in(Radians))
         };
     }
 
@@ -334,7 +352,7 @@ public class ProjectileSubsystem extends SubsystemBase {
         Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(launchSpeed, horizontalDistance, Meter.of(targetPosition.getZ()));
 
         if (launchAnglePitch1Temp == null) {
-            return new TargetSolution(1, Radians.of(0.0), Radians.of(0.0));
+            return new TargetSolution(TargetErrorCode.IDEAL_PITCH, Radians.of(0.0), Radians.of(0.0));
         }
         double launchAnglePitch1 = launchAnglePitch1Temp.in(Radians);
         double launchAnglePitch2 = launchAnglePitch1 + 0.1;
@@ -371,17 +389,17 @@ public class ProjectileSubsystem extends SubsystemBase {
             launchError1 = calculateLaunchError(launchSpeed, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
         }
 
-        int solutionFound = 0;
+        TargetErrorCode solutionFound = TargetErrorCode.NONE;
         if (Math.abs(launchAngleYaw1) > (Math.PI * 2)) {
-            solutionFound = 2;
+            solutionFound = TargetErrorCode.EXCESSIVE_YAW;
         } else if (launchAnglePitch1 > Constants.ArmConstants.ARM_UPPER_LIMIT.in(Radians)) {
-            solutionFound = 3;
+            solutionFound = TargetErrorCode.PITCH_UPPER_LIMIT;
         } else if (launchAnglePitch1 < Constants.ArmConstants.ARM_LOWER_LIMIT.in(Radians)) {
-            solutionFound = 4;
+            solutionFound = TargetErrorCode.PITCH_LOWER_LIMIT;
         } else if (Math.abs(launchError1[0]) > 0.1) {
-            solutionFound = 5;
+            solutionFound = TargetErrorCode.HEIGHT_ERROR_HIGH;
         } else if (Math.abs(launchError1[1]) > 0.1) {
-            solutionFound = 6;
+            solutionFound = TargetErrorCode.YAW_ERROR_HIGH;
         }
 
         return new TargetSolution(solutionFound, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1));

@@ -1,8 +1,12 @@
 package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import edu.wpi.first.math.geometry.Translation3d;
@@ -10,6 +14,9 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Mass;
 public class Constants {
 
     public static final class DriveConstants {
@@ -23,8 +30,9 @@ public class Constants {
     public final class NotePhysicsConstants {
         public static final double DRAG_CONSTANT = 0.1;
         public static final double CROSS_SECTION_AREA = 0.01;
-        public static final double MASS = 0.145;
+        public static final Mass MASS = Kilogram.of(0.145);
         public static final double FLUID_DENSITY = 1.2574;
+        public static final LinearAcceleration GRAVITY = MetersPerSecondPerSecond.of(9.80665);
     }
 
     public static final class ControlConstants {
@@ -36,7 +44,7 @@ public class Constants {
 
     public final class ArmConstants {
         public static final int ARM_MOTOR_ID = 4;
-        public static final double ARM_PID_P = 0.01;//3;
+        public static final double ARM_PID_P = 0.015;//3;
         public static final double ARM_PID_I = 0;
         public static final double ARM_PID_D = 0;
         public static final boolean ARM_MOTOR_INVERTED = true;
@@ -51,6 +59,7 @@ public class Constants {
             0
         );
         public static final Distance ARM_PIVOT_NOTE_OFFSET = Meter.of(0.1);
+        public static final Angle ARM_ALLOWED_ERROR = Radian.of(0.01);
     }
 
     public static final class ShooterConstants {
@@ -63,6 +72,13 @@ public class Constants {
         public static final AngularVelocity SHOOTER_MAX_ANGULAR_VELOCITY = RPM.of(5000);
         public static final AngularAcceleration  SHOOTER_MAX_ANGULAR_ACCELERATION = RotationsPerSecondPerSecond.of(5); 
         public static final AngularVelocity SHOOTER_ALLOWED_ERROR = RPM.of(1);
+    }
+
+    public static final class TargetConstants {
+        public static final LinearVelocity SHOOTER_VELOCITY = MetersPerSecond.of(10);
+        public static final Translation3d TARGET_POSITION = new Translation3d(0, 10, 0);
+        public static final int MAX_STEPS = 10;
+        public static final int TPS = 25;
     }
 
     public static final class LimelightConstants {

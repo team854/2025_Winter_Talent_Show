@@ -70,6 +70,11 @@ public class ShooterSubsystem extends SubsystemBase {
         
     }
 
+    public AngularVelocity getCurrentSpeed() {
+        double shooterMotor1Velocity = shooterMotor1.getEncoder().getVelocity();
+        double shooterMotor2Velocity = shooterMotor2.getEncoder().getVelocity();
+        return RPM.of((shooterMotor1Velocity + shooterMotor2Velocity) / 2);
+    }
     
     @Override
     public void periodic() {
