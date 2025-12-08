@@ -11,26 +11,26 @@ import frc.robot.Constants;
 public class IndexerSubsystem extends SubsystemBase{
       
     private final WPI_TalonSRX indexMotor = new WPI_TalonSRX(Constants.IndexerConstants.INDEX_MOTOR_ID);
-    private double currentSpeed = 0;
-    private final DigitalInput m_proximitySensor = new DigitalInput(Constants.IndexerConstants.INDEX_PROXIMITY_PORT);
-    public boolean getProximity(){
-        return m_proximitySensor.get();
-    }
+    private final DigitalInput proximitySensor = new DigitalInput(Constants.IndexerConstants.INDEX_PROXIMITY_PORT);
+    private double currentPower = 0;
 
     public IndexerSubsystem(){
         indexMotor.setInverted(Constants.IndexerConstants.INDEX_MOTOR_INVERSED);
         indexMotor.setNeutralMode(NeutralMode.Coast);
     }
     
-
-
-    public void setSpeed(double speed) {
-        currentSpeed = speed;
-        indexMotor.set(currentSpeed);
+    
+    public boolean getProximity(){
+        return proximitySensor.get();
     }
 
-    public double getSpeed(){
-        return currentSpeed;
+    public void setPower(double power) {
+        currentPower = power;
+        indexMotor.set(currentPower);
+    }
+
+    public double getPower(){
+        return currentPower;
     }
 
 

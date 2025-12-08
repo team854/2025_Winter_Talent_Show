@@ -1,6 +1,7 @@
 package frc.robot.Subsystems;
 
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -27,11 +28,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private final SparkMaxConfig shooterConfig1 = new SparkMaxConfig();
     private final SparkMaxConfig shooterConfig2 = new SparkMaxConfig();
-    public final SparkMax shooterMotor1 = new SparkMax(Constants.ShooterConstants.SHOOTER_MOTOR_ID_1,MotorType.kBrushless);
-    public final SparkMax shooterMotor2 = new SparkMax(Constants.ShooterConstants.SHOOTER_MOTOR_ID_2,MotorType.kBrushless);
+    private final SparkMax shooterMotor1 = new SparkMax(Constants.ShooterConstants.SHOOTER_MOTOR_ID_1,MotorType.kBrushless);
+    private final SparkMax shooterMotor2 = new SparkMax(Constants.ShooterConstants.SHOOTER_MOTOR_ID_2,MotorType.kBrushless);
+    private AngularVelocity targetSpeed = RotationsPerSecond.of(0);
 
-    public final SparkClosedLoopController shooterController1 = shooterMotor1.getClosedLoopController();
-    public final SparkClosedLoopController shooterController2 = shooterMotor2.getClosedLoopController();
+    private final SparkClosedLoopController shooterController1 = shooterMotor1.getClosedLoopController();
+    private final SparkClosedLoopController shooterController2 = shooterMotor2.getClosedLoopController();
 
 
     public ShooterSubsystem(){
@@ -63,23 +65,29 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotor2.configure(shooterConfig2, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
      public void setSpeed(AngularVelocity speed) {
+        targetSpeed = speed;
         shooterController1.setReference(speed.in(RPM), ControlType.kMAXMotionVelocityControl);
         shooterController2.setReference(speed.in(RPM), ControlType.kMAXMotionVelocityControl);
 
         SmartDashboard.putNumber("Shooter/Target RPM", speed.in(RPM));
-        
     }
 
-    public AngularVelocity getCurrentSpeed() {
-        double shooterMotor1Velocity = shooterMotor1.getEncoder().getVelocity();
-        double shooterMotor2Velocity = shooterMotor2.getEncoder().getVelocity();
-        return RPM.of((shooterMotor1Velocity + shooterMotor2Velocity) / 2);
+    public AngularVelocity getMotor1CurrentSpeed() {
+        return RPM.of(shooterMotor1.getEncoder().getVelocity());
+    }
+
+    public AngularVelocity getMotor2CurrentSpeed() {
+        return RPM.of(shooterMotor2.getEncoder().getVelocity());
+    }
+
+    public AngularVelocity getTargetSpeed() {
+        return targetSpeed;
     }
     
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Shooter/Motor 1 RPM", shooterMotor1.getEncoder().getVelocity());
-        SmartDashboard.putNumber("Shooter/Motor 2 RPM", shooterMotor2.getEncoder().getVelocity());
+        SmartDashboard.putNumber("Shooter/Motor 1 RPM", getMotor1CurrentSpeed().in(RPM));
+        SmartDashboard.putNumber("Shooter/Motor 2 RPM", getMotor2CurrentSpeed().in(RPM));
     }
 
 

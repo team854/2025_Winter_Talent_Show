@@ -26,7 +26,8 @@ public class SetShooterSpeedCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        double shooterDifference = targetSpeed.in(RPM) - RobotContainer.shooterSubsystem.getCurrentSpeed().in(RPM);
+        double averageSpeed = (RobotContainer.shooterSubsystem.getMotor1CurrentSpeed().in(RPM) + RobotContainer.shooterSubsystem.getMotor2CurrentSpeed().in(RPM)) / 2.0;
+        double shooterDifference = targetSpeed.in(RPM) - averageSpeed;
         return Math.abs(shooterDifference) < (Constants.ShooterConstants.SHOOTER_ALLOWED_ERROR.in(RPM) * 2);
     }
 }
