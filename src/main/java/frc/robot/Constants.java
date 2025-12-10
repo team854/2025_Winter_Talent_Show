@@ -67,9 +67,10 @@ public class Constants {
     public static final class ShooterConstants {
         public static final int SHOOTER_MOTOR_ID_1 = 2;
         public static final int SHOOTER_MOTOR_ID_2 = 3;
-        public static final double KP = 0.01;
-        public static final double KI = 0.0;
-        public static final double KD = 0.0;
+        public static final double SHOOTER_P = 0.001;
+        public static final double SHOOTER_I = 0.0;
+        public static final double SHOOTER_D = 0.0;
+        public static final double SHOOTER_DIVISOR = 4;
         public static final AngularVelocity SHOOTER_ANGULAR_VELOCITY = RPM.of(5000);
         public static final AngularVelocity SHOOTER_MAX_ANGULAR_VELOCITY = RPM.of(5000);
         public static final AngularAcceleration  SHOOTER_MAX_ANGULAR_ACCELERATION = RotationsPerSecondPerSecond.of(5); 
