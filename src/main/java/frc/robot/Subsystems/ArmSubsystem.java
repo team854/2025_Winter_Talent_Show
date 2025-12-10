@@ -49,6 +49,7 @@ public class ArmSubsystem extends SubsystemBase {
     @Override
     public void periodic() 
     {
+        /*
         SmartDashboard.putNumber("Arm/Absolute Angle", getCurrentArmAngle().in(Degree));
         SmartDashboard.putNumber("Arm/Target Angle", getTargetArmAngle().in(Degree));
 
@@ -58,6 +59,7 @@ public class ArmSubsystem extends SubsystemBase {
         armMotorObject.set(finalMotorPower);
 
         SmartDashboard.putNumber("Arm/Motor Percent", finalMotorPower * 100.0);
+        */
     }
 
     public void setTargetArmAngle(Angle targetAngle)

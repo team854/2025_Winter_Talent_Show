@@ -21,11 +21,11 @@ public class Constants {
 
     public static final class DriveConstants {
         public static final int  LEFT_MOTOR_1_ID = 21;
-        public static final int  LEFT_MOTOR_2_ID = 22;
+        public static final int  LEFT_MOTOR_2_ID = 20;
         public static final boolean LEFT_MOTORS_REVERSED = false;
 
         public static final int RIGHT_MOTOR_1_ID = 11;
-        public static final int RIGHT_MOTOR_2_ID = 12;
+        public static final int RIGHT_MOTOR_2_ID = 10;
         public static final boolean RIGHT_MOTORS_REVERSED = true;
     }
 
@@ -50,11 +50,11 @@ public class Constants {
         public static final double ARM_PID_I = 0;
         public static final double ARM_PID_D = 0;
         public static final boolean ARM_MOTOR_INVERTED = true;
-        public static final boolean ARM_ENCODER_INVERTED = true;
-        public static final double ARM_ZERO_OFFSET = 0.1023485;
+        public static final boolean ARM_ENCODER_INVERTED = false;
+        public static final double ARM_ZERO_OFFSET = 0.0672100;
         public static final double ARM_STATIONARY_CONSTANT = 0.047;
-        public static final Angle ARM_UPPER_LIMIT = Degrees.of(90);
-        public static final Angle ARM_LOWER_LIMIT = Degrees.of(-10);
+        public static final Angle ARM_UPPER_LIMIT = Degrees.of(80);
+        public static final Angle ARM_LOWER_LIMIT = Degrees.of(-15);
         public static final Translation3d ARM_PIVOT_OFFSET = new Translation3d(
             0,
             0,
@@ -67,10 +67,10 @@ public class Constants {
     public static final class ShooterConstants {
         public static final int SHOOTER_MOTOR_ID_1 = 2;
         public static final int SHOOTER_MOTOR_ID_2 = 3;
-        public static final double KP = 0.0;
+        public static final double KP = 0.01;
         public static final double KI = 0.0;
         public static final double KD = 0.0;
-        public static final AngularVelocity SHOOTER_ANGULAR_VELOCITY = RPM.of(500);
+        public static final AngularVelocity SHOOTER_ANGULAR_VELOCITY = RPM.of(5000);
         public static final AngularVelocity SHOOTER_MAX_ANGULAR_VELOCITY = RPM.of(5000);
         public static final AngularAcceleration  SHOOTER_MAX_ANGULAR_ACCELERATION = RotationsPerSecondPerSecond.of(5); 
         public static final AngularVelocity SHOOTER_ALLOWED_ERROR = RPM.of(1);

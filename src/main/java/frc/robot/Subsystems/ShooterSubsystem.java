@@ -29,15 +29,15 @@ public class ShooterSubsystem extends SubsystemBase {
     private final SparkMaxConfig shooterConfig1 = new SparkMaxConfig();
     private final SparkMaxConfig shooterConfig2 = new SparkMaxConfig();
     private final SparkMax shooterMotor1 = new SparkMax(Constants.ShooterConstants.SHOOTER_MOTOR_ID_1,MotorType.kBrushless);
-    private final SparkMax shooterMotor2 = new SparkMax(Constants.ShooterConstants.SHOOTER_MOTOR_ID_2,MotorType.kBrushless);
+    //private final SparkMax shooterMotor2 = new SparkMax(Constants.ShooterConstants.SHOOTER_MOTOR_ID_2,MotorType.kBrushless);
     private AngularVelocity targetSpeed = RotationsPerSecond.of(0);
 
     private final SparkClosedLoopController shooterController1 = shooterMotor1.getClosedLoopController();
-    private final SparkClosedLoopController shooterController2 = shooterMotor2.getClosedLoopController();
+    //private final SparkClosedLoopController shooterController2 = shooterMotor2.getClosedLoopController();
 
 
     public ShooterSubsystem(){
-        shooterConfig1.idleMode(IdleMode.kCoast);
+        shooterConfig1.idleMode(IdleMode.kBrake);
         shooterConfig1.closedLoop
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .p(Constants.ShooterConstants.KP)
@@ -48,8 +48,10 @@ public class ShooterSubsystem extends SubsystemBase {
             .maxVelocity(Constants.ShooterConstants.SHOOTER_MAX_ANGULAR_VELOCITY.in(RPM))
             .maxAcceleration(Constants.ShooterConstants.SHOOTER_MAX_ANGULAR_ACCELERATION.in(RotationsPerSecondPerSecond))
             .allowedClosedLoopError(Constants.ShooterConstants.SHOOTER_ALLOWED_ERROR.in(RPM));
-
-        shooterConfig2.idleMode(IdleMode.kCoast);
+        shooterConfig1.encoder.velocityConversionFactor(1);
+        
+        /*
+        shooterConfig2.idleMode(IdleMode.kBrake);
         shooterConfig2.closedLoop
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .p(Constants.ShooterConstants.KP)
@@ -60,14 +62,15 @@ public class ShooterSubsystem extends SubsystemBase {
             .maxVelocity(Constants.ShooterConstants.SHOOTER_MAX_ANGULAR_VELOCITY.in(RPM))
             .maxAcceleration(Constants.ShooterConstants.SHOOTER_MAX_ANGULAR_ACCELERATION.in(RotationsPerSecondPerSecond))
             .allowedClosedLoopError(Constants.ShooterConstants.SHOOTER_ALLOWED_ERROR.in(RPM));
+        */
 
         shooterMotor1.configure(shooterConfig1, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-        shooterMotor2.configure(shooterConfig2, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        //shooterMotor2.configure(shooterConfig2, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
      public void setSpeed(AngularVelocity speed) {
         targetSpeed = speed;
         shooterController1.setReference(speed.in(RPM), ControlType.kMAXMotionVelocityControl);
-        shooterController2.setReference(speed.in(RPM), ControlType.kMAXMotionVelocityControl);
+        //shooterController2.setReference(speed.in(RPM), ControlType.kMAXMotionVelocityControl);
 
         SmartDashboard.putNumber("Shooter/Target RPM", speed.in(RPM));
     }
@@ -77,7 +80,8 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public AngularVelocity getMotor2CurrentSpeed() {
-        return RPM.of(shooterMotor2.getEncoder().getVelocity());
+        //return RPM.of(shooterMotor2.getEncoder().getVelocity());
+        return RPM.of(10);
     }
 
     public AngularVelocity getTargetSpeed() {

@@ -33,7 +33,7 @@ public class RobotContainer {
 
     xboxController.a().whileTrue(new ActivateShooterCommand());
 
-    xboxController.b().onTrue(new ShootAtTargetCommand());
+    //xboxController.b().onTrue(new ShootAtTargetCommand());
   }
 
   public Command getAutonomousCommand() {
