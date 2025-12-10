@@ -21,9 +21,11 @@ public class Constants {
 
     public static final class DriveConstants {
         public static final int  LEFT_MOTOR_1_ID = 21;
+        public static final int  LEFT_MOTOR_2_ID = 22;
         public static final boolean LEFT_MOTORS_REVERSED = false;
 
         public static final int RIGHT_MOTOR_1_ID = 11;
+        public static final int RIGHT_MOTOR_2_ID = 12;
         public static final boolean RIGHT_MOTORS_REVERSED = true;
     }
 

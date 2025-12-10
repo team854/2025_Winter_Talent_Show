@@ -19,18 +19,29 @@ import frc.robot.Constants;
 
 public class DriveSubsystem extends SubsystemBase {
     private final WPI_TalonSRX leftMotor1 = new WPI_TalonSRX(Constants.DriveConstants.LEFT_MOTOR_1_ID);
+    private final WPI_VictorSPX leftMotor2 = new WPI_VictorSPX(Constants.DriveConstants.LEFT_MOTOR_2_ID);
 
     private final WPI_TalonSRX rightMotor1 = new WPI_TalonSRX(Constants.DriveConstants.RIGHT_MOTOR_1_ID);
+    private final WPI_VictorSPX rightMotor2 = new WPI_VictorSPX(Constants.DriveConstants.RIGHT_MOTOR_2_ID);
 
     public DriveSubsystem() {
         // Inverts one sides (Depends on how the gearbox is set up)
         leftMotor1.setInverted(Constants.DriveConstants.LEFT_MOTORS_REVERSED);
+        leftMotor2.setInverted(Constants.DriveConstants.LEFT_MOTORS_REVERSED);
 
         rightMotor1.setInverted(Constants.DriveConstants.RIGHT_MOTORS_REVERSED);
+        rightMotor2.setInverted(Constants.DriveConstants.RIGHT_MOTORS_REVERSED);
 
         // Makes it brake if it is not moving
         leftMotor1.setNeutralMode(NeutralMode.Brake);
+        leftMotor2.setNeutralMode(NeutralMode.Brake);
         rightMotor1.setNeutralMode(NeutralMode.Brake);
+        rightMotor2.setNeutralMode(NeutralMode.Brake);
+
+        
+        // Makes one of the motors follow the other
+        leftMotor2.follow(leftMotor1);
+        rightMotor2.follow(rightMotor1);
     }
 
     public void setDriveMotors(double leftMotor, double rightMotor) {
