@@ -96,109 +96,6 @@ public class ProjectileSubsystem extends SubsystemBase {
     }
 
     /**
-     * Calculates the derivatives of the system state for runge kutta 4.
-     * 
-     * @param systemState A double array of length 6 that stoes the state of the system in the order:
-     *  <ul>
-     *       <li>X position</li>
-     *       <li>Y position</li>
-     *       <li>Z position</li>
-     *       <li>X velocity</li>
-     *       <li>Y velocity</li>
-     *       <li>Z velocity</li>
-     *  </ul>
-     * @param dragConstant The drag constant of the projectile
-     * @return A double list of length 6 that stores the derivatives of the system state in the order:
-     *  <ul>
-     *       <li>X velocity</li>
-     *       <li>Y velocity</li>
-     *       <li>Z velocity</li>
-     *       <li>X acceleration</li>
-     *       <li>Y acceleration</li>
-     *       <li>Z acceleration</li>
-     *  </ul>
-     */
-    private double[] rungeKuttaDerivative(double[] systemState, double dragConstant) {
-        double totalVelocity = Math.sqrt(Math.pow(systemState[3], 2) + Math.pow(systemState[4], 2) + Math.pow(systemState[5], 2));
-
-        double xDrag = 0;
-        double yDrag = 0;
-        double zDrag = 0;
-
-        if (totalVelocity >= 1e-9) {
-            xDrag = -dragConstant * totalVelocity * systemState[3];
-            yDrag = -dragConstant * totalVelocity * systemState[4];
-            zDrag = -dragConstant * totalVelocity * systemState[5];
-        }
-
-        double xAccel = (xDrag / mass);
-        double yAccel = (yDrag / mass);
-        double zAccel = (zDrag / mass) - gravity;
-
-        return new double[]{systemState[3], systemState[4], systemState[5], xAccel, yAccel, zAccel};
-    }
-
-    /**
-     * Applies a derivative of a system state to the system state using a factor.
-     * 
-     * @param systemState1 A double array of length 6 that stores the inital system state
-     * @param systemState2 A double array of length 6 that stores the derivative of the inital system state
-     * @param multiplier The factor to use when applying the derivative
-     * @param deltaTime The time between steps of the simulation
-     * @return The intermediate system state
-     */
-    private double[] rungeKuttaIntermediate(double[] systemState1, double[] systemState2, double multiplier, Time deltaTime) {
-        double[] finalSystemState = new double[6];
-        
-        for (int index = 0; index < 6; index++) {
-            finalSystemState[index] = systemState1[index] + multiplier * systemState2[index] * deltaTime.in(Seconds);
-        }
-
-        return finalSystemState;
-    }
-
-    /**
-     * Performs an integration step for runge kutta 4.
-     * 
-     * @param systemState A double array of length 6 that stores the state of the system in the order:
-     *  <ul>
-     *       <li>X position</li>
-     *       <li>Y position</li>
-     *       <li>Z position</li>
-     *       <li>X velocity</li>
-     *       <li>Y velocity</li>
-     *       <li>Z velocity</li>
-     *  </ul>
-     * @param dragConstant The drag constant of the projectile
-     * @param deltaTime The time between steps of the simulation
-     * @return A double array of length 6 that stores the state of the system after this step in the order:
-     *  <ul>
-     *       <li>X position</li>
-     *       <li>Y position</li>
-     *       <li>Z position</li>
-     *       <li>X velocity</li>
-     *       <li>Y velocity</li>
-     *       <li>Z velocity</li>
-     *  </ul>
-     */
-    private double[] rungeKuttaStep(double[] systemState, double dragConstant, Time deltaTime) {
-        double[] k1SystemState = rungeKuttaDerivative(systemState, dragConstant);
-        double[] k2SystemState = rungeKuttaDerivative(rungeKuttaIntermediate(systemState, k1SystemState, 0.5, deltaTime), dragConstant);
-        double[] k3SystemState = rungeKuttaDerivative(rungeKuttaIntermediate(systemState, k2SystemState, 0.5, deltaTime), dragConstant);
-        double[] k4SystemState = rungeKuttaDerivative(rungeKuttaIntermediate(systemState, k3SystemState, 1, deltaTime), dragConstant);
-
-        double[] finalSystemState = new double[6];
-
-        for (int index = 0; index < 6; index++) {
-            double average_slope = (k1SystemState[index] + (2 * k2SystemState[index]) + (2 * k3SystemState[index]) + k4SystemState[index]) / 6;
-
-            finalSystemState[index] = systemState[index] + (average_slope * deltaTime.in(Seconds));
-        }
-
-        return finalSystemState;
-    }
-
-    /**
      * Simuulates the launch of a projectile using runge kutta 4.
      * 
      * @param launchSpeed The launch velocity of the projectile as a {@link LinearVelocity}
@@ -211,67 +108,105 @@ public class ProjectileSubsystem extends SubsystemBase {
      */
     public Translation3d[] simulateLaunch(LinearVelocity launchSpeed, Angle launchPitch, Angle launchYaw, Translation2d robotVelocity, Translation3d targetPosition, int tps) {
 
-        Translation3d position = Constants.ArmConstants.ARM_PIVOT_OFFSET;
-
         double noteVerticalOffset = Math.sin(launchPitch.in(Radians)) * Constants.ArmConstants.ARM_PIVOT_NOTE_OFFSET.in(Meter);
         double noteForwardOffset = Math.cos(launchPitch.in(Radians)) * Constants.ArmConstants.ARM_PIVOT_NOTE_OFFSET.in(Meter);
 
         double noteXOffset = Math.cos(launchYaw.in(Radians)) * noteForwardOffset;
         double noteYOffset = Math.sin(launchYaw.in(Radians)) * noteForwardOffset;
 
-        position = position.plus(new Translation3d(
-            noteXOffset,
-            noteYOffset,
-            noteVerticalOffset
-        ));
+        double posX = Constants.ArmConstants.ARM_PIVOT_OFFSET.getX() + noteXOffset;
+        double posY = Constants.ArmConstants.ARM_PIVOT_OFFSET.getY() + noteYOffset;
+        double posZ = Constants.ArmConstants.ARM_PIVOT_OFFSET.getZ() + noteVerticalOffset;
 
-        Translation3d velocity = new Translation3d(
-            (launchSpeed.in(MetersPerSecond) * Math.cos(launchPitch.in(Radians)) * Math.cos(launchYaw.in(Radians))) + robotVelocity.getX(),
-            (launchSpeed.in(MetersPerSecond) * Math.cos(launchPitch.in(Radians)) * Math.sin(launchYaw.in(Radians))) + robotVelocity.getY(),
-            launchSpeed.in(MetersPerSecond) * Math.sin(launchPitch.in(Radians))
-        );
+        double velX = (launchSpeed.in(MetersPerSecond) * Math.cos(launchPitch.in(Radians)) * Math.cos(launchYaw.in(Radians))) + robotVelocity.getX();
+        double velY = (launchSpeed.in(MetersPerSecond) * Math.cos(launchPitch.in(Radians)) * Math.sin(launchYaw.in(Radians))) + robotVelocity.getY();
+        double velZ = launchSpeed.in(MetersPerSecond) * Math.sin(launchPitch.in(Radians));
 
-        Time deltaTime = Seconds.of(1.0 / tps);
+        double deltaTime = 1.0 / tps;
 
         double dragConstant = 0.5 * dragCoefficient * fluidDensity * crossSectionArea;
 
         double horizontalDistance = Math.sqrt(Math.pow(targetPosition.getX(), 2) + Math.pow(targetPosition.getY(), 2));
 
-        Translation3d[] path = new Translation3d[]{position, position};
+        double prevX = posX;
+        double prevY = posY;
+        double prevZ = posZ;
+
+        double k1vx, k1vy, k1vz, k1ax, k1ay, k1az;
+        double k2vx, k2vy, k2vz, k2ax, k2ay, k2az;
+        double k3vx, k3vy, k3vz, k3ax, k3ay, k3az;
+        double k4vx, k4vy, k4vz, k4ax, k4ay, k4az;
+
+        double magVel, dragFactor;
 
         for (int step = 0; step < 5 * tps; step++) {
-            double[] systemState = rungeKuttaStep(
-                new double[]{
-                    position.getX(),
-                    position.getY(),
-                    position.getZ(),
-                    velocity.getX(),
-                    velocity.getY(),
-                    velocity.getZ()
-                }, dragConstant, deltaTime);
+            
+            prevX = posX;
+            prevY = posY;
+            prevZ = posZ;
 
-            position = new Translation3d(
-                systemState[0],
-                systemState[1],
-                systemState[2]
-            );
+            // K1
+            k1vx = velX;
+            k1vy = velY;
+            k1vz = velZ;
+            magVel = Math.sqrt(Math.pow(k1vx, 2) + Math.pow(k1vy, 2) + Math.pow(k1vz, 2));
+            dragFactor = -dragConstant * magVel;
 
-            velocity = new Translation3d(
-                systemState[3],
-                systemState[4],
-                systemState[5]
-            );
+            k1ax = ((k1vx * dragFactor) / mass);
+            k1ay = ((k1vy * dragFactor) / mass);
+            k1az = ((k1vz * dragFactor) / mass) - gravity;
+            
+            // K2
+            k2vx = velX + (0.5 * k1ax * deltaTime);
+            k2vy = velY + (0.5 * k1ay * deltaTime);
+            k2vz = velZ + (0.5 * k1az * deltaTime);
+            magVel = Math.sqrt(Math.pow(k2vx, 2) + Math.pow(k2vy, 2) + Math.pow(k2vz, 2));
+            dragFactor = -dragConstant * magVel;
 
-            path[0] = path[1];
+            k2ax = ((k2vx * dragFactor) / mass);
+            k2ay = ((k2vy * dragFactor) / mass);
+            k2az = ((k2vz * dragFactor) / mass) - gravity;
 
-            path[1] = position;
+            // K3
+            k3vx = velX + (0.5 * k2ax * deltaTime);
+            k3vy = velY + (0.5 * k2ay * deltaTime);
+            k3vz = velZ + (0.5 * k2az * deltaTime);
+            magVel = Math.sqrt(Math.pow(k3vx, 2) + Math.pow(k3vy, 2) + Math.pow(k3vz, 2));
+            dragFactor = -dragConstant * magVel;
 
-            if (Math.sqrt(Math.pow(position.getX(), 2) + Math.pow(position.getY(), 2)) >= horizontalDistance) {
+            k3ax = ((k3vx * dragFactor) / mass);
+            k3ay = ((k3vy * dragFactor) / mass);
+            k3az = ((k3vz * dragFactor) / mass) - gravity;
+
+            // K4
+            k4vx = velX + (k3ax * deltaTime);
+            k4vy = velY + (k3ay * deltaTime);
+            k4vz = velZ + (k3az * deltaTime);
+            magVel = Math.sqrt(Math.pow(k4vx, 2) + Math.pow(k4vy, 2) + Math.pow(k4vz, 2));
+            dragFactor = -dragConstant * magVel;
+
+            k4ax = ((k4vx * dragFactor) / mass);
+            k4ay = ((k4vy * dragFactor) / mass);
+            k4az = ((k4vz * dragFactor) / mass) - gravity;
+
+            posX += (k1vx + 2 * k2vx + 2 * k3vx + k4vx) / 6.0 * deltaTime;
+            posY += (k1vy + 2 * k2vy + 2 * k3vy + k4vy) / 6.0 * deltaTime;
+            posZ += (k1vz + 2 * k2vz + 2 * k3vz + k4vz) / 6.0 * deltaTime;
+
+            velX += (k1ax + 2 * k2ax + 2 * k3ax + k4ax) / 6.0 * deltaTime;
+            velY += (k1ay + 2 * k2ay + 2 * k3ay + k4ay) / 6.0 * deltaTime;
+            velZ += (k1az + 2 * k2az + 2 * k3az + k4az) / 6.0 * deltaTime;
+
+
+            if (Math.sqrt(Math.pow(posX, 2) + Math.pow(posY, 2)) >= horizontalDistance) {
                 break;
             }
         }
 
-        return path;
+        return new Translation3d[]{
+            new Translation3d(prevX, prevY, prevZ),
+            new Translation3d(posX, posY , posZ)
+        };
     }
 
     /**
@@ -349,7 +284,7 @@ public class ProjectileSubsystem extends SubsystemBase {
 
         double targetDirectAngle = Math.atan2(targetPosition.getY(), targetPosition.getX());
 
-        Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(launchSpeed, horizontalDistance, Meter.of(targetPosition.getZ()));
+        Angle launchAnglePitch1Temp = calculateLaunchPitchIdeal(launchSpeed, horizontalDistance, Meter.of(targetPosition.getZ() - Constants.ArmConstants.ARM_PIVOT_OFFSET.getZ()));
 
         if (launchAnglePitch1Temp == null) {
             return new TargetSolution(TargetErrorCode.IDEAL_PITCH, Radians.of(0.0), Radians.of(0.0));
