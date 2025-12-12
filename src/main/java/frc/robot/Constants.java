@@ -33,7 +33,7 @@ public class Constants {
         public static final double DRAG_CONSTANT = 0.1;
         public static final double CROSS_SECTION_AREA = 0.01;
         public static final Mass MASS = Kilogram.of(0.145);
-        public static final double FLUID_DENSITY = 1.2574;
+        public static final double FLUID_DENSITY = 1.2754;
         public static final LinearAcceleration GRAVITY = MetersPerSecondPerSecond.of(9.80665);
     }
 
@@ -79,9 +79,9 @@ public class Constants {
 
     public static final class TargetConstants {
         public static final LinearVelocity SHOOTER_VELOCITY = MetersPerSecond.of(10);
-        public static final Translation3d TARGET_POSITION = new Translation3d(0, 10, 0);
-        public static final int MAX_STEPS = 10;
-        public static final int TPS = 25;
+        public static final Translation3d TARGET_POSITION = new Translation3d(0, 7, 0);
+        public static final int MAX_STEPS = 30;
+        public static final int TPS = 30;
     }
 
     public static final class LimelightConstants {

@@ -300,6 +300,7 @@ public class ProjectileSubsystem extends SubsystemBase {
 
         for (int steps = 0; steps < maxSteps; steps++) {
             if (Math.abs(launchError1[0]) < 1e-7 && Math.abs(launchError1[1]) < 1e-6) {
+                System.out.println("Early Exit");
                 break;
             }
 
@@ -317,8 +318,10 @@ public class ProjectileSubsystem extends SubsystemBase {
             launchAngleYaw2 = launchAngleYaw1;
             launchError2 = launchError1;
 
-            launchAnglePitch1 -= (launchError1[0] * weightPitch);
-            launchAngleYaw1 -= (launchError1[1] * weightYaw);
+            double maxStep = 0.5; 
+
+            launchAnglePitch1 -= MathUtil.clamp((launchError1[0] * weightPitch), -maxStep, maxStep);
+            launchAngleYaw1 -= MathUtil.clamp((launchError1[1] * weightYaw), -maxStep, maxStep);
 
             // Height Error, Yaw Error
             launchError1 = calculateLaunchError(launchSpeed, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1), robotVelocity, targetPosition, Radians.of(targetDirectAngle), horizontalDistance, tps);
