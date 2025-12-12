@@ -38,8 +38,8 @@ public class Constants {
     }
 
     public static final class ControlConstants {
-        public static final double FORWARD_SPEED = 0.25;
-        public static final double RIGHT_SPEED = 0.5;
+        public static final double FORWARD_SPEED = 0.2;
+        public static final double RIGHT_SPEED = 0.1;
 
         public static final double ARM_SPEED = 1;
     }
@@ -71,7 +71,7 @@ public class Constants {
         public static final double SHOOTER_I = 0.0;
         public static final double SHOOTER_D = 0.0;
         public static final double SHOOTER_DIVISOR = 4;
-        public static final AngularVelocity SHOOTER_ANGULAR_VELOCITY = RPM.of(5000);
+        public static final AngularVelocity SHOOTER_ANGULAR_VELOCITY = RPM.of(4000);
         public static final AngularVelocity SHOOTER_MAX_ANGULAR_VELOCITY = RPM.of(5000);
         public static final AngularAcceleration  SHOOTER_MAX_ANGULAR_ACCELERATION = RotationsPerSecondPerSecond.of(5); 
         public static final AngularVelocity SHOOTER_ALLOWED_ERROR = RPM.of(1);
@@ -91,7 +91,7 @@ public class Constants {
     public static final class IndexerConstants{
         public static final int INDEX_MOTOR_ID = 0;
         public static final boolean INDEX_MOTOR_INVERSED = true;
-        public static final int INDEX_PROXIMITY_PORT = 1;
+        public static final int INDEX_PROXIMITY_PORT = 0;
 
     }
 }

@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.spark.SparkBase.ControlType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -19,9 +20,14 @@ public class IndexerSubsystem extends SubsystemBase{
         indexMotor.setNeutralMode(NeutralMode.Coast);
     }
     
+    @Override
+    public void periodic() 
+    {
+        SmartDashboard.putBoolean("Indexer/Note Detected", getProximity());
+    }
     
     public boolean getProximity(){
-        return proximitySensor.get();
+        return !proximitySensor.get();
     }
 
     public void setPower(double power) {

@@ -1,5 +1,6 @@
 package frc.robot.Commands;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Radians;
 
 import edu.wpi.first.units.measure.Angle;
@@ -16,6 +17,7 @@ public class SetArmAngleCommand extends Command {
 
     @Override
     public void initialize() {
+        System.out.println("INIT SET" + this.targetArmAngle.in(Degree));
         RobotContainer.armSubsystem.setTargetArmAngle(this.targetArmAngle);
     }
 

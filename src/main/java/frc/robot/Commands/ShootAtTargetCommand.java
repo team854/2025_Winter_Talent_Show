@@ -26,20 +26,18 @@ public class ShootAtTargetCommand extends Command {
         long startTime = System.nanoTime();
 
         TargetSolution targetSolution = new TargetSolution(TargetErrorCode.NONE, Degree.of(0), Degree.of(0));
-        for (int x = 0; x < 100; x++) {
-            targetSolution = RobotContainer.projectileSubsystem.calculateLaunchAngleSimulation(
-            Constants.TargetConstants.SHOOTER_VELOCITY,
-            new Translation2d(),
-            Constants.TargetConstants.TARGET_POSITION,
-            Constants.TargetConstants.MAX_STEPS,
-            Constants.TargetConstants.TPS
+        targetSolution = RobotContainer.projectileSubsystem.calculateLaunchAngleSimulation(
+        Constants.TargetConstants.SHOOTER_VELOCITY,
+        new Translation2d(),
+        Constants.TargetConstants.TARGET_POSITION,
+        Constants.TargetConstants.MAX_STEPS,
+        Constants.TargetConstants.TPS
         );
-        }
         long endTime = System.nanoTime();
         // --- BENCHMARK END ---
 
         // Calculate duration in microseconds (1 ms = 1000 µs)
-        long durationUs = ((endTime - startTime) / 1000) / 100;
+        long durationUs = ((endTime - startTime) / 1000) / 1;
         double durationMs = durationUs / 1000.0;
 
         System.out.println(String.format("Trajectory Calc Time: %d µs (%.3f ms)", durationUs, durationMs));
@@ -50,13 +48,17 @@ public class ShootAtTargetCommand extends Command {
         }
 
         System.out.println("TARGET PITCH:" + targetSolution.launchPitch().in(Degree));
+        
         this.commands.addCommands(
             new ParallelCommandGroup(
                 new SetArmAngleCommand(targetSolution.launchPitch()),
-                new SetShooterSpeedCommand(Constants.ShooterConstants.SHOOTER_MAX_ANGULAR_VELOCITY)
+                new SetShooterSpeedCommand(Constants.ShooterConstants.SHOOTER_ANGULAR_VELOCITY)
+            ),
+            new ParallelCommandGroup(
+                new OutakeCommand()
             )
         );
-
+        
         this.commands.initialize();
     }
 

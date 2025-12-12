@@ -13,6 +13,7 @@ import frc.robot.Commands.DefaultDriveCommand;
 import frc.robot.Commands.ShootAtTargetCommand;
 import frc.robot.Subsystems.ArmSubsystem;
 import frc.robot.Subsystems.DriveSubsystem;
+import frc.robot.Subsystems.IndexerSubsystem;
 import frc.robot.Subsystems.ProjectileSubsystem;
 import frc.robot.Subsystems.ShooterSubsystem;
 
@@ -22,6 +23,7 @@ public class RobotContainer {
   public static final ArmSubsystem armSubsystem = new ArmSubsystem();
   public static final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   public static final ProjectileSubsystem projectileSubsystem = new ProjectileSubsystem();
+  public static final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
 
   public RobotContainer() {
     configureBindings();
