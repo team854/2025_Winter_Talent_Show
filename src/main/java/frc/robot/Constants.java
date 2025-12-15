@@ -46,13 +46,13 @@ public class Constants {
 
     public final class ArmConstants {
         public static final int ARM_MOTOR_ID = 4;
-        public static final double ARM_PID_P = 0.015;//3;
+        public static final double ARM_PID_P = 0.013;//3;
         public static final double ARM_PID_I = 0;
-        public static final double ARM_PID_D = 0;
+        public static final double ARM_PID_D = 0.001;
         public static final boolean ARM_MOTOR_INVERTED = true;
         public static final boolean ARM_ENCODER_INVERTED = false;
         public static final double ARM_ZERO_OFFSET = 0.0672100;
-        public static final double ARM_STATIONARY_CONSTANT = 0.047;
+        public static final double ARM_STATIONARY_CONSTANT = 0.0475;
         public static final Angle ARM_UPPER_LIMIT = Degrees.of(80);
         public static final Angle ARM_LOWER_LIMIT = Degrees.of(-15);
         public static final Translation3d ARM_PIVOT_OFFSET = new Translation3d(
@@ -61,7 +61,7 @@ public class Constants {
             0
         );
         public static final Distance ARM_PIVOT_NOTE_OFFSET = Meter.of(0.1);
-        public static final Angle ARM_ALLOWED_ERROR = Radian.of(0.01);
+        public static final Angle ARM_ALLOWED_ERROR = Radian.of(0.02);
     }
 
     public static final class ShooterConstants {
@@ -71,7 +71,9 @@ public class Constants {
         public static final double SHOOTER_I = 0.0;
         public static final double SHOOTER_D = 0.0;
         public static final double SHOOTER_DIVISOR = 4;
-        public static final AngularVelocity SHOOTER_ANGULAR_VELOCITY = RPM.of(4000);
+        public static final double SHOOTER_SLOPE = 0.000195;
+        public static final double UPPER_SHOOTER_RATIO = 1.25;
+        public static final AngularVelocity SHOOTER_ANGULAR_VELOCITY = RPM.of(1500);
         public static final AngularVelocity SHOOTER_MAX_ANGULAR_VELOCITY = RPM.of(5000);
         public static final AngularAcceleration  SHOOTER_MAX_ANGULAR_ACCELERATION = RotationsPerSecondPerSecond.of(5); 
         public static final AngularVelocity SHOOTER_ALLOWED_ERROR = RPM.of(1);

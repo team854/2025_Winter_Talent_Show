@@ -72,7 +72,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public AngularVelocity getMotor2CurrentSpeed() {
-        return RPM.of(shooterMotor2.getEncoder().getVelocity());
+        return RPM.of(shooterMotor2.getEncoder().getVelocity() * Constants.ShooterConstants.UPPER_SHOOTER_RATIO);
     }
 
     public AngularVelocity getTargetSpeed() {
@@ -82,11 +82,12 @@ public class ShooterSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         double pidOutput1 = MathUtil.clamp(pid1.calculate(shootEncoder1.getVelocity(), targetSpeed.in(RPM)) / Constants.ShooterConstants.SHOOTER_DIVISOR, -0.1, 0.1);
-        double finalMotorPower1 = pidOutput1 + (0.00016 * targetSpeed.in(RPM));
+        double finalMotorPower1 = pidOutput1 + (Constants.ShooterConstants.SHOOTER_SLOPE * targetSpeed.in(RPM));
         shooterMotor1.set(finalMotorPower1);
 
-        double pidOutput2 = MathUtil.clamp(pid2.calculate(shootEncoder2.getVelocity(), targetSpeed.in(RPM)) / Constants.ShooterConstants.SHOOTER_DIVISOR, -0.1, 0.1);
-        double finalMotorPower2 = pidOutput2 + (0.00019 * targetSpeed.in(RPM));
+        double pidOutput2 = MathUtil.clamp(pid2.calculate(shootEncoder2.getVelocity(), targetSpeed.in(RPM) / Constants.ShooterConstants.UPPER_SHOOTER_RATIO) / Constants.ShooterConstants.SHOOTER_DIVISOR, -0.1, 0.1);
+
+        double finalMotorPower2 = pidOutput2 + (Constants.ShooterConstants.SHOOTER_SLOPE * (targetSpeed.in(RPM)  / Constants.ShooterConstants.UPPER_SHOOTER_RATIO));
         shooterMotor2.set(finalMotorPower2);
 
         SmartDashboard.putNumber("Shooter/Motor 1 RPM", getMotor1CurrentSpeed().in(RPM));

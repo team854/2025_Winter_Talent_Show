@@ -1,6 +1,9 @@
 package frc.robot.Commands;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Millisecond;
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Second;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,24 +26,13 @@ public class ShootAtTargetCommand extends Command {
     public void initialize() {
         this.commands = new SequentialCommandGroup();
 
-        long startTime = System.nanoTime();
-
-        TargetSolution targetSolution = new TargetSolution(TargetErrorCode.NONE, Degree.of(0), Degree.of(0));
-        targetSolution = RobotContainer.projectileSubsystem.calculateLaunchAngleSimulation(
-        Constants.TargetConstants.SHOOTER_VELOCITY,
-        new Translation2d(),
-        Constants.TargetConstants.TARGET_POSITION,
-        Constants.TargetConstants.MAX_STEPS,
-        Constants.TargetConstants.TPS
+        TargetSolution targetSolution = RobotContainer.projectileSubsystem.calculateLaunchAngleSimulation(
+            Constants.TargetConstants.SHOOTER_VELOCITY,
+            new Translation2d(),
+            Constants.TargetConstants.TARGET_POSITION,
+            Constants.TargetConstants.MAX_STEPS,
+            Constants.TargetConstants.TPS
         );
-        long endTime = System.nanoTime();
-        // --- BENCHMARK END ---
-
-        // Calculate duration in microseconds (1 ms = 1000 µs)
-        long durationUs = ((endTime - startTime) / 1000) / 1;
-        double durationMs = durationUs / 1000.0;
-
-        System.out.println(String.format("Trajectory Calc Time: %d µs (%.3f ms)", durationUs, durationMs));
 
         if (TargetErrorCode.NONE != targetSolution.errorCode()) {
             System.out.println("Error target soluation failed: " + targetSolution.errorCode().toString());
@@ -53,10 +45,13 @@ public class ShootAtTargetCommand extends Command {
             new ParallelCommandGroup(
                 new SetArmAngleCommand(targetSolution.launchPitch()),
                 new SetShooterSpeedCommand(Constants.ShooterConstants.SHOOTER_ANGULAR_VELOCITY)
-            ),
+            ).withTimeout(Millisecond.of(5000)),
             new ParallelCommandGroup(
                 new OutakeCommand()
-            )
+            ).withTimeout(Millisecond.of(3000)),
+            new ParallelCommandGroup(
+                new SetShooterSpeedCommand(RPM.of(0.0))
+            ).withTimeout(Millisecond.of(1000))
         );
         
         this.commands.initialize();

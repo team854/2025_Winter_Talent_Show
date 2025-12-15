@@ -15,8 +15,8 @@ public class OutakeCommand extends Command {
 
     @Override
     public void initialize() {
-        
-        RobotContainer.indexerSubsystem.setPower(1);
+        startTime = 0;
+        RobotContainer.indexerSubsystem.setPower(-1);
     }
 
     @Override
@@ -26,11 +26,12 @@ public class OutakeCommand extends Command {
 
     @Override
     public boolean isFinished() {
+        System.out.println("Test" + RobotContainer.indexerSubsystem.getProximity());
         if (!RobotContainer.indexerSubsystem.getProximity()) {
             if (startTime == 0) {
                 startTime = Timer.getFPGATimestamp();
             }
-            if ((Timer.getFPGATimestamp() - startTime) > 5) {
+            if ((Timer.getFPGATimestamp() - startTime) >= 2) {
                 return true;
             }
         } else {
