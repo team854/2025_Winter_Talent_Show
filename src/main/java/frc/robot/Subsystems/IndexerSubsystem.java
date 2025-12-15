@@ -23,6 +23,7 @@ public class IndexerSubsystem extends SubsystemBase{
     @Override
     public void periodic() 
     {
+        SmartDashboard.putNumber("Indexer/Motor Percent", currentPower);
         SmartDashboard.putBoolean("Indexer/Note Detected", getProximity());
     }
     

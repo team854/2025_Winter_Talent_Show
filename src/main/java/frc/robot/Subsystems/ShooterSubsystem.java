@@ -92,6 +92,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
         SmartDashboard.putNumber("Shooter/Motor 1 RPM", getMotor1CurrentSpeed().in(RPM));
         SmartDashboard.putNumber("Shooter/Motor 2 RPM", getMotor2CurrentSpeed().in(RPM));
+
+        SmartDashboard.putNumber("Shooter/Motor 1 Percent", finalMotorPower1);
+        SmartDashboard.putNumber("Shooter/Motor 2 Percent", finalMotorPower2);
     }
 
 

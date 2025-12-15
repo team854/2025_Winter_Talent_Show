@@ -36,24 +36,25 @@ public class ShootAtTargetCommand extends Command {
 
         if (TargetErrorCode.NONE != targetSolution.errorCode()) {
             System.out.println("Error target soluation failed: " + targetSolution.errorCode().toString());
-            return;
+            this.commands.addCommands();
+        } else {
+
+            System.out.println("TARGET PITCH:" + targetSolution.launchPitch().in(Degree));
+            
+            this.commands.addCommands(
+                new ParallelCommandGroup(
+                    new SetArmAngleCommand(targetSolution.launchPitch()),
+                    new SetShooterSpeedCommand(Constants.ShooterConstants.SHOOTER_ANGULAR_VELOCITY)
+                ).withTimeout(Millisecond.of(4000)),
+                new ParallelCommandGroup(
+                    new OutakeCommand()
+                ).withTimeout(Millisecond.of(3000)),
+                new ParallelCommandGroup(
+                    new SetShooterSpeedCommand(RPM.of(0.0))
+                ).withTimeout(Millisecond.of(1000))
+            );
         }
 
-        System.out.println("TARGET PITCH:" + targetSolution.launchPitch().in(Degree));
-        
-        this.commands.addCommands(
-            new ParallelCommandGroup(
-                new SetArmAngleCommand(targetSolution.launchPitch()),
-                new SetShooterSpeedCommand(Constants.ShooterConstants.SHOOTER_ANGULAR_VELOCITY)
-            ).withTimeout(Millisecond.of(5000)),
-            new ParallelCommandGroup(
-                new OutakeCommand()
-            ).withTimeout(Millisecond.of(3000)),
-            new ParallelCommandGroup(
-                new SetShooterSpeedCommand(RPM.of(0.0))
-            ).withTimeout(Millisecond.of(1000))
-        );
-        
         this.commands.initialize();
     }
 
