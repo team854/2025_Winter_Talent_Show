@@ -340,6 +340,6 @@ public class ProjectileSubsystem extends SubsystemBase {
             solutionFound = TargetErrorCode.YAW_ERROR_HIGH;
         }
 
-        return new TargetSolution(solutionFound, Radians.of(launchAnglePitch1), Radians.of(launchAngleYaw1));
+        return new TargetSolution(solutionFound, Radians.of(launchAnglePitch1), Radians.of(MathUtil.inputModulus(launchAngleYaw1, 0, 2 * Math.PI)));
     }
 }

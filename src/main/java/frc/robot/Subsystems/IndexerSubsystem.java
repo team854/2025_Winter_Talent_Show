@@ -13,7 +13,6 @@ public class IndexerSubsystem extends SubsystemBase{
       
     private final WPI_TalonSRX indexMotor = new WPI_TalonSRX(Constants.IndexerConstants.INDEX_MOTOR_ID);
     private final DigitalInput proximitySensor = new DigitalInput(Constants.IndexerConstants.INDEX_PROXIMITY_PORT);
-    private double currentPower = 0;
 
     public IndexerSubsystem(){
         indexMotor.setInverted(Constants.IndexerConstants.INDEX_MOTOR_INVERSED);
@@ -23,7 +22,7 @@ public class IndexerSubsystem extends SubsystemBase{
     @Override
     public void periodic() 
     {
-        SmartDashboard.putNumber("Indexer/Motor Percent", currentPower);
+        SmartDashboard.putNumber("Indexer/Motor Percent", getPower());
         SmartDashboard.putBoolean("Indexer/Note Detected", getProximity());
     }
     
@@ -32,12 +31,11 @@ public class IndexerSubsystem extends SubsystemBase{
     }
 
     public void setPower(double power) {
-        currentPower = power;
-        indexMotor.set(currentPower);
+        indexMotor.set(power);
     }
 
     public double getPower(){
-        return currentPower;
+        return indexMotor.get();
     }
 
 

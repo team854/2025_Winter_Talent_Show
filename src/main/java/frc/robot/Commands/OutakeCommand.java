@@ -26,12 +26,11 @@ public class OutakeCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        System.out.println("Test" + RobotContainer.indexerSubsystem.getProximity());
         if (!RobotContainer.indexerSubsystem.getProximity()) {
             if (startTime == 0) {
                 startTime = Timer.getFPGATimestamp();
             }
-            if ((Timer.getFPGATimestamp() - startTime) >= 2) {
+            if ((Timer.getFPGATimestamp() - startTime) >= 1) {
                 return true;
             }
         } else {

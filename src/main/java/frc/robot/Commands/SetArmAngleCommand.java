@@ -17,7 +17,6 @@ public class SetArmAngleCommand extends Command {
 
     @Override
     public void initialize() {
-        System.out.println("INIT SET" + this.targetArmAngle.in(Degree));
         RobotContainer.armSubsystem.setTargetArmAngle(this.targetArmAngle);
     }
 

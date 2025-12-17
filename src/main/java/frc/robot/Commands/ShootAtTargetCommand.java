@@ -24,6 +24,7 @@ public class ShootAtTargetCommand extends Command {
 
     @Override
     public void initialize() {
+        
         this.commands = new SequentialCommandGroup();
 
         TargetSolution targetSolution = RobotContainer.projectileSubsystem.calculateLaunchAngleSimulation(
@@ -40,11 +41,13 @@ public class ShootAtTargetCommand extends Command {
         } else {
 
             System.out.println("TARGET PITCH:" + targetSolution.launchPitch().in(Degree));
+            System.out.println("TARGET Yaw:" + targetSolution.launchYaw().in(Degree));
             
             this.commands.addCommands(
                 new ParallelCommandGroup(
                     new SetArmAngleCommand(targetSolution.launchPitch()),
-                    new SetShooterSpeedCommand(Constants.ShooterConstants.SHOOTER_ANGULAR_VELOCITY)
+                    new SetShooterSpeedCommand(Constants.ShooterConstants.SHOOTER_ANGULAR_VELOCITY),
+                    new TurnRobotAngleCommand(targetSolution.launchYaw())
                 ).withTimeout(Millisecond.of(4000)),
                 new ParallelCommandGroup(
                     new OutakeCommand()
