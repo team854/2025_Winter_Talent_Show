@@ -41,6 +41,7 @@ public class ArmSubsystem extends SubsystemBase {
         armConfig.absoluteEncoder.inverted(Constants.ArmConstants.ARM_ENCODER_INVERTED);
         armMotorObject.configure(armConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     
+        pid.setTolerance(Constants.ArmConstants.ARM_ALLOWED_ERROR.in(Degree));
         pid.enableContinuousInput(0, 360);
 
         
@@ -74,6 +75,10 @@ public class ArmSubsystem extends SubsystemBase {
     public Angle getTargetArmAngle()
     {
         return armAngle;
+    }
+
+    public boolean atSetpoint() {
+        return pid.atSetpoint();
     }
 
     public Angle getCurrentArmAngle() {

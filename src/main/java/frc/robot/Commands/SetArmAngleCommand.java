@@ -27,8 +27,7 @@ public class SetArmAngleCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        double angleDifference = targetArmAngle.in(Radians) - RobotContainer.armSubsystem.getCurrentArmAngle().in(Radians);
-        return Math.abs(angleDifference) < Constants.ArmConstants.ARM_ALLOWED_ERROR.in(Radians);
+        return RobotContainer.armSubsystem.atSetpoint();
     }
 
     @Override

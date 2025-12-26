@@ -6,12 +6,15 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degree;
 
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Commands.ActivateShooterCommand;
 import frc.robot.Commands.DefaultArmCommand;
 import frc.robot.Commands.DefaultDriveCommand;
+import frc.robot.Commands.IntakeCommand;
 import frc.robot.Commands.ShootAtTargetCommand;
 import frc.robot.Commands.TurnRobotAngleCommand;
 import frc.robot.Subsystems.ArmSubsystem;
@@ -28,7 +31,7 @@ public class RobotContainer {
   public static final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   public static final ProjectileSubsystem projectileSubsystem = new ProjectileSubsystem();
   public static final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
-  public static final LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
+  // public static final LimelightSubsystem limelightSubsystem = new LimelightSubsystem();
 
   public RobotContainer() {
     configureBindings();
@@ -38,13 +41,26 @@ public class RobotContainer {
     driveSubsystem.setDefaultCommand(new DefaultDriveCommand());
     armSubsystem.setDefaultCommand(new DefaultArmCommand());
 
-    xboxController.a().whileTrue(new ActivateShooterCommand());
+    xboxController.a().onTrue(new IntakeCommand());
+
+    xboxController.x().onTrue(
+      new InstantCommand(() -> {
+        driveSubsystem.zeroGyro();
+      }));
+
+    xboxController.y().onTrue(new ShootAtTargetCommand(
+      new Translation3d(4, 0, 1.25)
+    ));
+
+    xboxController.b().onTrue(new ShootAtTargetCommand(
+      new Translation3d(4, 1.9, 1.3)
+    ));
 
     //xboxController.b().onTrue(new ShootAtTargetCommand());
   }
 
   public Command getAutonomousCommand() {
-    //return new TurnRobotAngleCommand(Degree.of(15));
-    return new ShootAtTargetCommand();
+    return new TurnRobotAngleCommand(Degree.of(15));
+    //return new ShootAtTargetCommand();
   }
 }

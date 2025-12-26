@@ -28,14 +28,15 @@ public class Constants {
         public static final int RIGHT_MOTOR_2_ID = 10;
         public static final boolean RIGHT_MOTORS_REVERSED = true;
 
-        public static final double DRIVE_PID_P = 0.022;
-        public static final double DRIVE_PID_I = 0;
-        public static final double DRIVE_PID_D = 0.001;
+        public static final double DRIVE_PID_P = 0.16;
+        public static final double DRIVE_PID_I = 0.000001;
+        public static final double DRIVE_PID_D = 0.002;
+        public static final Angle DRIVE_ALLOWED_ERROR = Radian.of(0.05);
     }
 
     public final class NotePhysicsConstants {
         public static final double DRAG_CONSTANT = 0.5;
-        public static final double CROSS_SECTION_AREA = 0.01;
+        public static final double CROSS_SECTION_AREA = 0.024;
         public static final Mass MASS = Kilogram.of(0.145);
         public static final double FLUID_DENSITY = 1.2754;
         public static final LinearAcceleration GRAVITY = MetersPerSecondPerSecond.of(9.80665);
@@ -43,7 +44,7 @@ public class Constants {
 
     public static final class ControlConstants {
         public static final double FORWARD_SPEED = 0.2;
-        public static final double RIGHT_SPEED = 0.1;
+        public static final double RIGHT_SPEED = 0.3;
 
         public static final double ARM_SPEED = 1;
     }
@@ -75,9 +76,9 @@ public class Constants {
         public static final double SHOOTER_I = 0.0;
         public static final double SHOOTER_D = 0.0;
         public static final double SHOOTER_DIVISOR = 4;
-        public static final double SHOOTER_SLOPE = 0.000196;
-        public static final double UPPER_SHOOTER_RATIO = 1.1;
-        public static final AngularVelocity SHOOTER_ANGULAR_VELOCITY = RPM.of(4700);
+        public static final double SHOOTER_SLOPE = 0.000198;
+        public static final double UPPER_SHOOTER_RATIO = 1.09;
+        public static final AngularVelocity SHOOTER_ANGULAR_VELOCITY = RPM.of(4800);
         public static final AngularVelocity SHOOTER_MAX_ANGULAR_VELOCITY = RPM.of(5000);
         public static final AngularAcceleration  SHOOTER_MAX_ANGULAR_ACCELERATION = RotationsPerSecondPerSecond.of(5); 
         public static final AngularVelocity SHOOTER_ALLOWED_ERROR = RPM.of(1);
@@ -85,9 +86,9 @@ public class Constants {
 
     public static final class TargetConstants {
         public static final LinearVelocity SHOOTER_VELOCITY = MetersPerSecond.of(9.1);
-        public static final Translation3d TARGET_POSITION = new Translation3d(3.5, 1,1.2);
+        public static final Translation3d TARGET_POSITION = new Translation3d(5, 2,1.2);
         public static final int MAX_STEPS = 30;
-        public static final int TPS = 30;
+        public static final int TPS = 40;
     }
 
     public static final class LimelightConstants {

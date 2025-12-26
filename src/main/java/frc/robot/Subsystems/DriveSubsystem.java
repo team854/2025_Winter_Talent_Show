@@ -26,9 +26,11 @@ import frc.robot.Constants;
 public class DriveSubsystem extends SubsystemBase {
     private final WPI_TalonSRX leftMotor1 = new WPI_TalonSRX(Constants.DriveConstants.LEFT_MOTOR_1_ID);
     private final WPI_VictorSPX leftMotor2 = new WPI_VictorSPX(Constants.DriveConstants.LEFT_MOTOR_2_ID);
+    private double leftMotorPercent = 0;
 
     private final WPI_TalonSRX rightMotor1 = new WPI_TalonSRX(Constants.DriveConstants.RIGHT_MOTOR_1_ID);
     private final WPI_VictorSPX rightMotor2 = new WPI_VictorSPX(Constants.DriveConstants.RIGHT_MOTOR_2_ID);
+    private double rightMotorPercent = 0;
     
     private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
 
@@ -63,10 +65,15 @@ public class DriveSubsystem extends SubsystemBase {
     public void setDriveMotors(double leftMotor, double rightMotor) {
         leftMotor1.set(ControlMode.PercentOutput, leftMotor);
         rightMotor1.set(ControlMode.PercentOutput, rightMotor);
+
+        leftMotorPercent = leftMotor;
+        rightMotorPercent = rightMotor;
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Drive/Gyro", getGyroFacing().in(Degree));
+        SmartDashboard.putNumber("Drive/Left Motor Percent", leftMotorPercent * 100.0);
+        SmartDashboard.putNumber("Drive/Right Motor Percent", rightMotorPercent * 100.0);
     }
 }

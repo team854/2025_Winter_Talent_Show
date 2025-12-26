@@ -29,15 +29,15 @@ public class TurnRobotAngleCommand extends Command {
     @Override
     public void initialize() {
         startTime = 0;
-        System.out.println("TEST: " + this.targetAngle.in(Degree));
+        pid.setTolerance(Constants.DriveConstants.DRIVE_ALLOWED_ERROR.in(Degree));
         pid.setSetpoint(this.targetAngle.in(Degree));
     }
 
     @Override
     public void execute() {
-        double pidOutput = MathUtil.clamp(pid.calculate(RobotContainer.driveSubsystem.getGyroFacing().in(Degree)), -1.0, 1.0);
+        double pidOutput = MathUtil.clamp(pid.calculate(RobotContainer.driveSubsystem.getGyroFacing().in(Degree)), -0.15, 0.15);
 
-        RobotContainer.driveSubsystem.setDriveMotors(pidOutput * 1, pidOutput * -1);
+        RobotContainer.driveSubsystem.setDriveMotors(pidOutput * 0.9, pidOutput * -1.1);
     }
 
     @Override
@@ -47,9 +47,7 @@ public class TurnRobotAngleCommand extends Command {
     
     @Override
     public boolean isFinished() {
-        return false;
-        /*
-        if (inRange) {
+        if (pid.atSetpoint()) {
             if (startTime == 0) {
                 startTime = Timer.getFPGATimestamp();
             }
@@ -60,6 +58,5 @@ public class TurnRobotAngleCommand extends Command {
             startTime = 0;
         }
         return false;
-        */
     }
 }

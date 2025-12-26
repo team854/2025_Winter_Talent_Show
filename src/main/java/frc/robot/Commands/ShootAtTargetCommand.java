@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Second;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -18,8 +19,12 @@ import frc.robot.Subsystems.ProjectileSubsystem.TargetSolution;
 public class ShootAtTargetCommand extends Command {
 
     private SequentialCommandGroup commands;
-    public ShootAtTargetCommand() {
-        
+    private Translation3d targetPosition = new Translation3d();
+
+    public ShootAtTargetCommand(Translation3d targetPosition) {
+        this.targetPosition = targetPosition;
+
+        addRequirements(RobotContainer.driveSubsystem, RobotContainer.armSubsystem);
     }
 
     @Override
@@ -30,7 +35,7 @@ public class ShootAtTargetCommand extends Command {
         TargetSolution targetSolution = RobotContainer.projectileSubsystem.calculateLaunchAngleSimulation(
             Constants.TargetConstants.SHOOTER_VELOCITY,
             new Translation2d(),
-            Constants.TargetConstants.TARGET_POSITION,
+            targetPosition,
             Constants.TargetConstants.MAX_STEPS,
             Constants.TargetConstants.TPS
         );
@@ -42,13 +47,13 @@ public class ShootAtTargetCommand extends Command {
 
             System.out.println("TARGET PITCH:" + targetSolution.launchPitch().in(Degree));
             System.out.println("TARGET Yaw:" + targetSolution.launchYaw().in(Degree));
-            
+        
             this.commands.addCommands(
                 new ParallelCommandGroup(
                     new SetArmAngleCommand(targetSolution.launchPitch()),
                     new SetShooterSpeedCommand(Constants.ShooterConstants.SHOOTER_ANGULAR_VELOCITY),
                     new TurnRobotAngleCommand(targetSolution.launchYaw())
-                ).withTimeout(Millisecond.of(4000)),
+                ).withTimeout(Millisecond.of(2000)),
                 new ParallelCommandGroup(
                     new OutakeCommand()
                 ).withTimeout(Millisecond.of(3000)),
@@ -56,6 +61,7 @@ public class ShootAtTargetCommand extends Command {
                     new SetShooterSpeedCommand(RPM.of(0.0))
                 ).withTimeout(Millisecond.of(1000))
             );
+            
         }
 
         this.commands.initialize();
